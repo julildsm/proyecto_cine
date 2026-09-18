@@ -1,0 +1,122 @@
+ <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cine Match</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header class="header">
+    <a href="#" class="logo">CINE <span>MATCH</span></a>
+
+    <nav>
+      <a href="#cartelera">Cartelera</a>
+      <a href="#combos">Combos</a>
+      <a href="#perfil">Mi perfil</a>
+    </nav>
+
+   <button id="botonSesion" class="boton" onclick="abrirInicioSesion()">
+  Iniciar sesión
+</button>
+  </header>
+
+  <main>
+    <section class="portada">
+      <div>
+        <p class="etiqueta">ESTRENO DESTACADO</p>
+        <h1>Viví el cine como nunca antes</h1>
+        <p>
+          Buscá películas, elegí tu función y comprá tus entradas.
+        </p>
+        <a class="boton enlace-boton" href="#cartelera">Ver cartelera</a>
+      </div>
+    </section>
+
+    <section id="cartelera" class="seccion">
+      <h2>En cartelera</h2>
+      <div id="peliculas" class="peliculas"></div>
+    </section>
+    <section id="perfil" class="seccion">
+  <h2>Mi perfil</h2>
+  <div id="contenidoPerfil"></div>
+</section>
+  </main>
+
+  <footer>
+    <p>2026 Cine Match</p>
+  </footer>
+<div id="ventanaFunciones" class="ventana oculto">
+  <div class="contenido-ventana">
+    <button class="cerrar" onclick="cerrarFunciones()">Cerrar</button>
+
+    <h2 id="tituloPelicula"></h2>
+    <p>Elegí una función disponible:</p>
+
+    <div class="horarios">
+      <button class="horario" onclick="seleccionarHorario('15:30')">15:30</button>
+      <button class="horario" onclick="seleccionarHorario('18:00')">18:00</button>
+      <button class="horario" onclick="seleccionarHorario('20:30')">20:30</button>
+      <button class="horario" onclick="seleccionarHorario('23:00')">23:00</button>
+    </div>
+
+    <p id="mensajeHorario"></p>
+    <button id="botonComprar" class="boton oculto" onclick="comprarEntrada()">
+      Continuar con la compra
+    </button>
+  </div>
+</div>
+<div id="ventanaSesion" class="ventana oculto">
+  <div class="contenido-ventana">
+    <button class="cerrar" onclick="cerrarInicioSesion()">Cerrar</button>
+
+    <div id="formularioLogin">
+      <h2>Iniciar sesión</h2>
+
+      <form class="formulario" onsubmit="iniciarSesion(event)">
+        <label for="emailLogin">Correo electrónico</label>
+        <input id="emailLogin" type="email" required>
+
+        <label for="claveLogin">Contraseña</label>
+        <input id="claveLogin" type="password" required>
+
+        <button class="boton" type="submit">Ingresar</button>
+      </form>
+
+      <p class="texto-formulario">
+        ¿No tenés una cuenta?
+        <button class="enlace-formulario" type="button" onclick="mostrarRegistro()">
+          Registrarse
+        </button>
+      </p>
+    </div>
+
+    <div id="formularioRegistro" class="oculto">
+      <h2>Crear cuenta</h2>
+
+      <form class="formulario" onsubmit="registrarUsuario(event)">
+        <label for="nombreRegistro">Nombre de usuario</label>
+        <input id="nombreRegistro" type="text" required>
+
+        <label for="emailRegistro">Correo electrónico</label>
+        <input id="emailRegistro" type="email" required>
+
+        <label for="claveRegistro">Contraseña</label>
+        <input id="claveRegistro" type="password" required minlength="4">
+
+        <button class="boton" type="submit">Crear cuenta</button>
+      </form>
+
+      <p class="texto-formulario">
+        ¿Ya tenés una cuenta?
+        <button class="enlace-formulario" type="button" onclick="mostrarLogin()">
+          Iniciar sesión
+        </button>
+      </p>
+    </div>
+  </div>
+</div>
+  <script src="app.js"></script>
+</body>
+</html>

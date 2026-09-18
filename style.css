@@ -1,0 +1,285 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap");
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0b1020;
+  color: #fff8e7;
+  font-family: "Montserrat", sans-serif;
+}
+
+.header {
+  background: #070b16;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 8%;
+}
+
+.logo {
+  color: white;
+  font-size: 22px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.logo span,
+.etiqueta {
+  color: #f5bf3a;
+}
+
+nav {
+  display: flex;
+  gap: 22px;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+}
+
+.boton {
+  background: #f5bf3a;
+  border: none;
+  border-radius: 7px;
+  color: #111;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 12px 18px;
+}
+
+.portada {
+  align-items: center;
+  background: linear-gradient(90deg, #080c19, #17213b);
+  display: flex;
+  min-height: 420px;
+  padding: 70px 8%;
+}
+
+.portada div {
+  max-width: 560px;
+}
+
+.portada h1 {
+  font-size: 55px;
+  margin: 12px 0;
+}
+
+.portada p {
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.enlace-boton {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.seccion {
+  padding: 55px 8%;
+}
+
+.seccion h2 {
+  margin-bottom: 25px;
+}
+
+.peliculas {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.pelicula {
+  background: #151d33;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.pelicula img {
+  display: block;
+  height: 280px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.pelicula-info {
+  padding: 16px;
+}
+
+.pelicula h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.pelicula p {
+  color: #f5bf3a;
+  margin-bottom: 16px;
+}
+
+.pelicula button {
+  width: 100%;
+}
+
+footer {
+  background: #070b16;
+  color: #aaa;
+  padding: 25px;
+  text-align: center;
+}
+@media (max-width: 650px) {
+  nav {
+    display: none;
+  }
+
+  .header,
+  .portada,
+  .seccion {
+    padding-left: 6%;
+    padding-right: 6%;
+  }
+
+  .portada h1 {
+    font-size: 40px;
+  }
+}
+
+.ventana {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.contenido-ventana {
+  background: #151d33;
+  border-radius: 12px;
+  max-width: 500px;
+  padding: 35px;
+  text-align: center;
+  width: 90%;
+}
+
+.contenido-ventana h2 {
+  margin-bottom: 15px;
+}
+
+.cerrar {
+  background: transparent;
+  border: 1px solid #f5bf3a;
+  border-radius: 5px;
+  color: #f5bf3a;
+  cursor: pointer;
+  float: right;
+  padding: 8px 12px;
+}
+
+.horarios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin: 25px 0;
+}
+
+.horario {
+  background: #243152;
+  border: 1px solid #f5bf3a;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  padding: 12px 18px;
+}
+
+.horario:hover,
+.horario.seleccionado {
+  background: #f5bf3a;
+  color: #111;
+}
+
+.oculto {
+  display: none !important;
+}
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 25px;
+  text-align: left;
+}
+
+.formulario label {
+  color: #fff8e7;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.formulario input {
+  background: #0b1020;
+  border: 1px solid #526080;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  padding: 12px;
+}
+
+.formulario input:focus {
+  border-color: #f5bf3a;
+  outline: none;
+}
+
+.formulario .boton {
+  margin-top: 12px;
+}
+
+.texto-formulario {
+  margin-top: 20px;
+}
+
+.enlace-formulario {
+  background: none;
+  border: none;
+  color: #f5bf3a;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+}
+.perfil-encabezado {
+  align-items: center;
+  background: #151d33;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  padding: 25px;
+}
+
+.perfil-encabezado h3 {
+  font-size: 24px;
+  margin: 8px 0;
+}
+
+.perfil-seccion {
+  margin-bottom: 25px;
+}
+
+.perfil-seccion h3 {
+  margin-bottom: 12px;
+}
+
+.tarjeta-perfil {
+  background: #151d33;
+  border-left: 4px solid #f5bf3a;
+  border-radius: 8px;
+  color: #c8c8c8;
+  padding: 20px;
+}
