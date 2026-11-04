@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -6,117 +6,408 @@
   <title>Cine Match</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  <header class="header">
-    <a href="#" class="logo">CINE <span>MATCH</span></a>
 
-    <nav>
-      <a href="#cartelera">Cartelera</a>
-      <a href="#combos">Combos</a>
-      <a href="#perfil">Mi perfil</a>
-    </nav>
+  <header class="encabezado">
+    <div class="contenedor barra">
+      <a href="#" class="logo" onclick="navegar('inicio')">Cine<span>Match</span></a>
 
-   <button id="botonSesion" class="boton" onclick="abrirInicioSesion()">
-  Iniciar sesión
-</button>
+      <nav class="menu" id="menu">
+        <button onclick="navegar('inicio')">Inicio</button>
+        <button onclick="navegar('cartelera')">Cartelera</button>
+        <button class="solo-usuario" onclick="navegar('comunidad')">Comunidad</button>
+        <button class="solo-usuario" onclick="navegar('favoritos')">Favoritos</button>
+        <span id="menu-admin"></span>
+      </nav>
+
+      <div class="acciones">
+        <input type="search" class="buscador solo-usuario" placeholder="Buscar películas o usuarios...">
+        <button class="icono campana solo-usuario" onclick="navegar('notificaciones')" title="Notificaciones">🔔<span id="punto-notificaciones" class="punto oculto"></span></button>
+        <div class="cuenta" id="zona-cuenta"></div>
+        <button class="icono boton-menu" onclick="abrirMenu()" title="Menú">☰</button>
+      </div>
+    </div>
   </header>
 
   <main>
-    <section class="portada">
-      <div>
-        <p class="etiqueta">ESTRENO DESTACADO</p>
-        <h1>Viví el cine como nunca antes</h1>
-        <p>
-          Buscá películas, elegí tu función y comprá tus entradas.
-        </p>
-        <a class="boton enlace-boton" href="#cartelera">Ver cartelera</a>
+    <!-- INICIO -->
+    <section id="pantalla-inicio" class="pantalla">
+      <div class="portada">
+        <div class="contenedor">
+          <p class="etiqueta">CINE CORTE</p>
+          <h1>Viví el cine como nunca antes</h1>
+          <p>Buscá películas, elegí tu función, comprá tus entradas y compartí tu opinión.</p>
+          <button class="boton" onclick="navegar('cartelera')">Explorar cartelera</button>
+        </div>
+      </div>
+
+      <div class="contenedor">
+        <div class="titulo-seccion">
+          <div>
+            <h2>En cartelera esta semana</h2>
+            <p>Funciones disponibles en nuestras salas 2D, 3D e IMAX</p>
+          </div>
+          <button class="enlace" onclick="navegar('cartelera')">Ver todas ›</button>
+        </div>
+        <div id="inicio-peliculas" class="grilla"></div>
+
+        <div class="titulo-seccion">
+          <div>
+            <h2>Reseñas recientes de la comunidad</h2>
+            <p>Descubrí qué opinan otros cinéfilos de Cine Match</p>
+          </div>
+          <button class="enlace" onclick="navegar('comunidad')">Ver comunidad ›</button>
+        </div>
+        <div id="inicio-resenas" class="grilla grilla-resenas"></div>
       </div>
     </section>
 
-    <section id="cartelera" class="seccion">
-      <h2>En cartelera</h2>
-      <div id="peliculas" class="peliculas"></div>
+    <!-- CARTELERA -->
+    <section id="pantalla-cartelera" class="pantalla oculto">
+      <div class="contenedor">
+        <h1>Cartelera del cine</h1>
+        <p class="subtitulo">Explorá todas las películas disponibles hoy en nuestras salas.</p>
+
+        <div class="filtros">
+          <input type="search" id="buscar-titulo" placeholder="Filtrar por título..." oninput="mostrarCartelera()">
+          <select id="filtro-genero" onchange="mostrarCartelera()">
+            <option value="todos">Todos los géneros</option>
+            <option value="Sci-Fi">Ciencia ficción</option>
+            <option value="Drama">Drama</option>
+            <option value="Accion">Acción</option>
+            <option value="Comedia">Comedia</option>
+          </select>
+          <select id="filtro-formato" onchange="mostrarCartelera()">
+            <option value="todos">Todos los formatos</option>
+            <option value="2D">2D tradicional</option>
+            <option value="3D">3D digital</option>
+            <option value="IMAX">IMAX láser</option>
+          </select>
+          <select id="orden" onchange="mostrarCartelera()">
+            <option value="popularidad">Ordenar por popularidad</option>
+            <option value="puntuacion">Mejor puntuadas</option>
+            <option value="titulo">Título (A-Z)</option>
+          </select>
+        </div>
+
+        <div id="cartelera-peliculas" class="grilla"></div>
+
+        <h2 class="subseccion">Próximos estrenos</h2>
+        <p class="subtitulo">Películas que llegarán pronto. Todavía no están a la venta.</p>
+        <div id="proximos" class="grilla"></div>
+      </div>
     </section>
-    <section id="perfil" class="seccion">
-  <h2>Mi perfil</h2>
-  <div id="contenidoPerfil"></div>
-</section>
+
+    <!-- FICHA DE LA PELÍCULA -->
+    <section id="pantalla-pelicula" class="pantalla oculto">
+      <div class="hero" id="pelicula-hero"></div>
+      <div class="contenedor">
+        <div class="ficha">
+          <img id="pelicula-poster" alt="Póster">
+          <div class="detalle">
+            <p class="datos"><span class="clasificacion" id="pelicula-clasificacion"></span><span id="pelicula-genero"></span> • <span id="pelicula-duracion"></span></p>
+            <h1 id="pelicula-titulo"></h1>
+            <div class="cifras">
+              <div><small>Puntuación Cine Match</small><strong id="pelicula-puntuacion"></strong></div>
+              <div><small>Dirección</small><strong id="pelicula-director"></strong></div>
+            </div>
+            <p id="pelicula-descripcion"></p>
+            <div class="botones">
+              <button class="boton" onclick="comprarEntradas(peliculaActual.id)">Comprar entradas</button>
+              <button class="boton-borde" id="boton-favorito" onclick="alternarFavorito()">♡ Guardar en favoritos</button>
+              <button class="boton-borde" onclick="abrirResena()">★ Puntuar</button>
+            </div>
+          </div>
+        </div>
+
+        <h2 class="subseccion">Horarios disponibles para hoy</h2>
+        <div id="pelicula-funciones" class="salas"></div>
+
+        <h2 class="subseccion">Reseñas de la comunidad sobre esta película</h2>
+        <div id="pelicula-resenas" class="grilla grilla-resenas"></div>
+      </div>
+    </section>
+
+    <!-- COMPRA DE ENTRADAS -->
+    <section id="pantalla-compra" class="pantalla oculto">
+      <div class="contenedor contenedor-chico">
+        <div class="pasos" id="pasos">
+          <span>1. Función</span><span>2. Asientos</span><span>3. Combos</span><span>4. Pago</span>
+        </div>
+
+        <div class="paso" id="paso-1">
+          <h2>Paso 1: Confirmá la función</h2>
+          <div class="panel">
+            <h3 id="compra-titulo"></h3>
+            <p class="subtitulo">Cine Match - Sala principal</p>
+            <div class="campos">
+              <div><label for="compra-fecha">Fecha</label><select id="compra-fecha"></select></div>
+              <div><label for="compra-funcion">Horario y formato</label><select id="compra-funcion"></select></div>
+            </div>
+          </div>
+          <div class="acciones-paso"><span></span><button class="boton" onclick="irAPaso(2)">Continuar a asientos →</button></div>
+        </div>
+
+        <div class="paso oculto" id="paso-2">
+          <h2>Paso 2: Elegí tus asientos</h2>
+          <p class="subtitulo">Tocá los asientos disponibles. Precio por entrada: <strong id="precio-entrada"></strong></p>
+          <div class="panel">
+            <div class="lienzo">PANTALLA</div>
+            <div id="asientos"></div>
+            <div class="leyenda">
+              <span><i class="asiento libre"></i> Disponible</span>
+              <span><i class="asiento elegido"></i> Seleccionado</span>
+              <span><i class="asiento ocupado"></i> Ocupado</span>
+            </div>
+          </div>
+          <p>Asientos seleccionados: <strong id="asientos-elegidos"></strong></p>
+          <div class="acciones-paso">
+            <button class="boton-borde" onclick="irAPaso(1)">Atrás</button>
+            <button class="boton" id="boton-combos" onclick="irAPaso(3)">Continuar a combos →</button>
+          </div>
+        </div>
+
+        <div class="paso oculto" id="paso-3">
+          <h2>Paso 3: Sumá un combo del candy bar</h2>
+          <p class="subtitulo">Es opcional. Podés seguir sin elegir ninguno.</p>
+          <div id="lista-combos"></div>
+          <div class="acciones-paso">
+            <button class="boton-borde" onclick="irAPaso(2)">Atrás</button>
+            <button class="boton" onclick="irAPaso(4)">Continuar al pago →</button>
+          </div>
+        </div>
+
+        <div class="paso oculto" id="paso-4">
+          <h2>Paso 4: Resumen y pago</h2>
+          <div class="dos-columnas">
+            <div class="panel" id="resumen"></div>
+            <div class="panel">
+              <h3>Pago simulado</h3>
+              <p class="subtitulo">Entorno de prueba: no se cobra nada.</p>
+              <div class="campos una-columna">
+                <div><label>Nombre en la tarjeta</label><input type="text" value="Usuario Pruebas"></div>
+                <div><label>Número de tarjeta ficticio</label><input type="text" value="•••• •••• •••• 4242"></div>
+                <div><label>Vencimiento</label><input type="text" value="12/28"></div>
+                <div><label>CVV</label><input type="text" value="123"></div>
+              </div>
+              <br><button class="boton" onclick="pagar()">Confirmar y pagar</button>
+            </div>
+          </div>
+          <div class="acciones-paso"><button class="boton-borde" onclick="irAPaso(3)">Atrás</button><span></span></div>
+        </div>
+
+        <div class="paso oculto exito" id="paso-exito">
+          <h2>¡Compra confirmada con éxito!</h2>
+          <p class="subtitulo">Tu entrada digital quedó registrada en Cine Match.</p>
+          <div class="panel" id="exito-detalle"></div>
+          <div class="qr">[ QR VALIDADOR DE ENTRADA ]</div>
+          <div class="botones centrado">
+            <button class="boton" onclick="navegar('mis-compras')">Ver mis compras</button>
+            <button class="boton-borde" onclick="navegar('inicio')">Volver al inicio</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PERFIL -->
+    <section id="pantalla-perfil" class="pantalla oculto">
+      <div class="contenedor">
+        <div id="perfil-invitado"></div>
+        <div id="perfil-contenido">
+          <div class="panel perfil-cabecera">
+            <img id="perfil-foto" alt="Foto de perfil">
+            <div>
+              <div class="perfil-titulo">
+                <div><h1 id="perfil-nombre"></h1><span class="arroba" id="perfil-arroba"></span></div>
+                <div class="botones">
+                  <button class="boton-borde" onclick="mostrarEditarPerfil()">Editar perfil</button>
+                  <button class="boton-borde" onclick="navegar('mis-compras')">Mis compras</button>
+                </div>
+              </div>
+              <p id="perfil-bio"></p>
+              <div class="numeros">
+                <div><strong id="perfil-seguidores">0</strong> Seguidores</div>
+                <div><strong id="perfil-siguiendo">0</strong> Siguiendo</div>
+                <div><strong id="perfil-nresenas">0</strong> Reseñas</div>
+              </div>
+            </div>
+          </div>
+
+          <form id="form-perfil" class="panel oculto" onsubmit="guardarPerfil(event)">
+            <h3>Editar mi perfil</h3>
+            <div class="campos">
+              <div><label for="ep-nombre">Nombre de usuario</label><input id="ep-nombre" type="text" required minlength="3" maxlength="24"></div>
+              <div>
+                <label for="ep-foto">Foto de perfil</label>
+                <div class="foto-editar">
+                  <img id="ep-vista" class="vista-foto" alt="Vista previa">
+                  <input id="ep-foto" type="file" accept="image/*" onchange="elegirFoto(this)">
+                </div>
+              </div>
+            </div>
+            <label for="ep-bio" class="espacio">Biografía</label>
+            <textarea id="ep-bio" maxlength="200" placeholder="Contá algo sobre vos y tus gustos de cine..."></textarea>
+            <div class="botones">
+              <button class="boton" type="submit">Guardar cambios</button>
+              <button class="boton-borde" type="button" onclick="quitarFoto()">Quitar foto</button>
+              <button class="boton-borde" type="button" onclick="mostrarEditarPerfil()">Cancelar</button>
+            </div>
+          </form>
+
+          <div class="perfil-columnas">
+            <div>
+              <h2>Reseñas y calificaciones públicas</h2>
+              <div id="perfil-resenas"></div>
+            </div>
+            <div>
+              <h2>Películas favoritas</h2>
+              <div id="perfil-favoritas" class="grilla grilla-chica"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAVORITOS -->
+    <section id="pantalla-favoritos" class="pantalla oculto">
+      <div class="contenedor">
+        <h1>Mis películas favoritas</h1>
+        <p class="subtitulo">Las películas que guardaste desde su ficha.</p>
+        <div id="favoritos-lista" class="grilla"></div>
+      </div>
+    </section>
+
+    <!-- MIS COMPRAS -->
+    <section id="pantalla-mis-compras" class="pantalla oculto">
+      <div class="contenedor contenedor-chico">
+        <div class="titulo-seccion">
+          <div><h1>Mis compras de entradas</h1><p>Tus entradas y el estado de cada reserva.</p></div>
+          <button class="boton-borde" onclick="navegar('perfil')">Volver al perfil</button>
+        </div>
+        <div id="avisos-cancelacion"></div>
+        <div id="compras-lista"></div>
+      </div>
+    </section>
+
+    <!-- COMUNIDAD -->
+    <section id="pantalla-comunidad" class="pantalla oculto">
+      <div class="contenedor">
+        <h1>Comunidad de Cine Match</h1>
+        <p class="subtitulo">Encontrá a otros cinéfilos, explorá sus opiniones y seguilos.</p>
+        <div class="filtros">
+          <input type="search" id="buscar-usuario" oninput="mostrarComunidad()" placeholder="Buscar usuarios por nombre o @usuario...">
+        </div>
+        <div id="comunidad-lista" class="grilla grilla-resenas"></div>
+      </div>
+    </section>
+
+    <!-- NOTIFICACIONES -->
+    <section id="pantalla-notificaciones" class="pantalla oculto">
+      <div class="contenedor contenedor-chico">
+        <h1>Centro de notificaciones</h1>
+        <div id="notificaciones-lista"></div>
+      </div>
+    </section>
+
+    <!-- ADMINISTRACIÓN -->
+    <section id="pantalla-admin" class="pantalla oculto">
+      <div class="contenedor">
+        <h1>Panel de administración del cine</h1>
+        <p class="subtitulo">Gestión de películas, ventas y reembolsos.</p>
+
+        <div id="admin-metricas" class="grilla metricas"></div>
+
+        <div class="titulo-seccion">
+          <h2>Películas en cartelera</h2>
+          <button class="boton" onclick="mostrarFormularioPelicula()">+ Añadir película</button>
+        </div>
+
+        <form id="form-pelicula" class="panel oculto" onsubmit="agregarPelicula(event)">
+          <div class="campos">
+            <div><label>Título</label><input id="ap-titulo" type="text" required></div>
+            <div><label>Género</label>
+              <select id="ap-genero"><option value="Sci-Fi">Ciencia ficción</option><option value="Drama">Drama</option><option value="Accion">Acción</option><option value="Comedia">Comedia</option></select></div>
+            <div><label>Formato</label>
+              <select id="ap-formato"><option>2D</option><option>3D</option><option>IMAX</option></select></div>
+            <div><label>Duración (ej: 2h 10m)</label><input id="ap-duracion" type="text" required></div>
+            <div><label>Clasificación</label>
+              <select id="ap-clasificacion"><option>ATP</option><option>PG-13</option><option>R</option></select></div>
+            <div><label>Dirección</label><input id="ap-director" type="text" required></div>
+            <div><label>Imagen (dirección web que empiece con https)</label><input id="ap-imagen" type="url" required></div>
+            <div><label>Descripción</label><input id="ap-descripcion" type="text" required></div>
+          </div>
+          <br><button class="boton" type="submit">Guardar película</button>
+        </form>
+
+        <div id="admin-peliculas"></div>
+
+        <h2 class="subseccion">Solicitudes de reembolso</h2>
+        <div id="admin-reembolsos"></div>
+      </div>
+    </section>
   </main>
 
-  <footer>
-    <p>2026 Cine Match</p>
-  </footer>
-<div id="ventanaFunciones" class="ventana oculto">
-  <div class="contenido-ventana">
-    <button class="cerrar" onclick="cerrarFunciones()">Cerrar</button>
+  <!-- VENTANA PARA INICIAR SESIÓN O CREAR CUENTA -->
+  <div id="ventana-cuenta" class="modal oculto">
+    <div class="modal-caja">
+      <div class="modal-titulo">
+        <h3 id="cuenta-titulo">Iniciar sesión</h3>
+        <button class="icono" onclick="cerrarCuenta()">✕</button>
+      </div>
+      <p class="error oculto" id="cuenta-error"></p>
 
-    <h2 id="tituloPelicula"></h2>
-    <p>Elegí una función disponible:</p>
-
-    <div class="horarios">
-      <button class="horario" onclick="seleccionarHorario('15:30')">15:30</button>
-      <button class="horario" onclick="seleccionarHorario('18:00')">18:00</button>
-      <button class="horario" onclick="seleccionarHorario('20:30')">20:30</button>
-      <button class="horario" onclick="seleccionarHorario('23:00')">23:00</button>
-    </div>
-
-    <p id="mensajeHorario"></p>
-    <button id="botonComprar" class="boton oculto" onclick="comprarEntrada()">
-      Continuar con la compra
-    </button>
-  </div>
-</div>
-<div id="ventanaSesion" class="ventana oculto">
-  <div class="contenido-ventana">
-    <button class="cerrar" onclick="cerrarInicioSesion()">Cerrar</button>
-
-    <div id="formularioLogin">
-      <h2>Iniciar sesión</h2>
-
-      <form class="formulario" onsubmit="iniciarSesion(event)">
-        <label for="emailLogin">Correo electrónico</label>
-        <input id="emailLogin" type="email" required>
-
-        <label for="claveLogin">Contraseña</label>
-        <input id="claveLogin" type="password" required>
-
-        <button class="boton" type="submit">Ingresar</button>
+      <form id="form-login" onsubmit="iniciarSesion(event)">
+        <label for="login-usuario">Usuario o correo</label>
+        <input id="login-usuario" type="text" required>
+        <label for="login-clave">Contraseña</label>
+        <input id="login-clave" type="password" required>
+        <button class="boton" type="submit">Iniciar sesión</button>
+        <p class="cambio">¿No tenés cuenta? <button type="button" class="enlace" onclick="abrirCuenta('registro')">Crear cuenta</button></p>
       </form>
 
-      <p class="texto-formulario">
-        ¿No tenés una cuenta?
-        <button class="enlace-formulario" type="button" onclick="mostrarRegistro()">
-          Registrarse
-        </button>
-      </p>
-    </div>
-
-    <div id="formularioRegistro" class="oculto">
-      <h2>Crear cuenta</h2>
-
-      <form class="formulario" onsubmit="registrarUsuario(event)">
-        <label for="nombreRegistro">Nombre de usuario</label>
-        <input id="nombreRegistro" type="text" required>
-
-        <label for="emailRegistro">Correo electrónico</label>
-        <input id="emailRegistro" type="email" required>
-
-        <label for="claveRegistro">Contraseña</label>
-        <input id="claveRegistro" type="password" required minlength="4">
-
+      <form id="form-registro" class="oculto" onsubmit="crearCuenta(event)">
+        <label for="registro-usuario">Nombre de usuario</label>
+        <input id="registro-usuario" type="text" required minlength="3" maxlength="24" placeholder="Letras, números, _ y .">
+        <label for="registro-email">Correo electrónico</label>
+        <input id="registro-email" type="email" required>
+        <label for="registro-clave">Contraseña (mínimo 4 caracteres)</label>
+        <input id="registro-clave" type="password" required minlength="4">
         <button class="boton" type="submit">Crear cuenta</button>
+        <p class="cambio">¿Ya tenés cuenta? <button type="button" class="enlace" onclick="abrirCuenta('login')">Iniciar sesión</button></p>
       </form>
-
-      <p class="texto-formulario">
-        ¿Ya tenés una cuenta?
-        <button class="enlace-formulario" type="button" onclick="mostrarLogin()">
-          Iniciar sesión
-        </button>
-      </p>
     </div>
   </div>
-</div>
-  <script src="app.js"></script>
+
+  <!-- VENTANA PARA ESCRIBIR UNA RESEÑA -->
+  <div id="ventana-resena" class="modal oculto">
+    <div class="modal-caja">
+      <div class="modal-titulo">
+        <h3>Escribir reseña</h3>
+        <button class="icono" onclick="cerrarResena()">✕</button>
+      </div>
+      <p>Película: <strong id="resena-pelicula"></strong></p>
+      <label>Tu puntuación (1 a 5 estrellas)</label>
+      <div class="elegir-estrellas" id="elegir-estrellas">
+        <button onclick="elegirEstrellas(1)">★</button>
+        <button onclick="elegirEstrellas(2)">★</button>
+        <button onclick="elegirEstrellas(3)">★</button>
+        <button onclick="elegirEstrellas(4)">★</button>
+        <button onclick="elegirEstrellas(5)">★</button>
+      </div>
+      <p class="subtitulo" id="resena-aviso">Elegí de 1 a 5 estrellas</p>
+      <label for="resena-texto">Tu opinión</label>
+      <textarea id="resena-texto" placeholder="¿Qué te pareció? Evitá los spoilers..."></textarea>
+      <button class="boton" onclick="publicarResena()">Publicar reseña</button>
+    </div>
+  </div>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <strong>Cine Match</strong> — Plataforma de cine e interacción social<br>
+      © 2026 Cine Match
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
