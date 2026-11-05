@@ -26,26 +26,79 @@ function limpiar(texto) {
   return String(texto).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-// ===== Cuentas =====
-// Las claves se guardan en texto plano solo porque esto es un prototipo.
-// Con la base de datos se guardan encriptadas (password_hash en PHP).
+const CARPETA_API = "../api/";
+
+const MENSAJE_SIN_CONEXION = "No se pudo conectar con el servidor. Abrí la página desde http://localhost/cinematch/ con Apache y MySQL encendidos.";
+
 const usuariosIniciales = [
-  { id: 1, nombre: "admin", email: "admin@cinematch.com", clave: "admin123", rol: "admin", bio: "Administración de Cine Match.", foto: "", siguiendo: [], favoritos: [] },
-  { id: 2, nombre: "marcos_cines", nombreCompleto: "Marcos Cine", email: "marcos@cinematch.com", clave: "cine1234", rol: "usuario", bio: "", foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100", resenasBase: 34, siguiendo: [], favoritos: [] },
-  { id: 3, nombre: "valeria_film", nombreCompleto: "Valeria Gómez", email: "valeria@cinematch.com", clave: "cine1234", rol: "usuario", bio: "", foto: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100", resenasBase: 52, siguiendo: [], favoritos: [] }
+  { id: 1, nombre: "admin", rol: "admin", bio: "Administración de Cine Match.", foto: "", siguiendo: [], favoritos: [] },
+  { id: 3, nombre: "marcos_cines", nombreCompleto: "Marcos Cine", rol: "usuario", bio: "", foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100", resenasBase: 34, siguiendo: [], favoritos: [] },
+  { id: 4, nombre: "valeria_film", nombreCompleto: "Valeria Gómez", rol: "usuario", bio: "", foto: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100", resenasBase: 52, siguiendo: [], favoritos: [] }
 ];
 
-let usuarios = JSON.parse(localStorage.getItem("cineMatchUsuarios")) || usuariosIniciales;
+let usuarios = JSON.parse(localStorage.getItem("cineMatchExtras")) || usuariosIniciales;
 let usuarioActual = null;
 let fotoPendiente = null; // foto nueva elegida en "Editar perfil" (null = no se tocó)
 
-const idGuardado = Number(localStorage.getItem("cineMatchSesion"));
-if (idGuardado) {
-  usuarioActual = usuarios.find((u) => u.id === idGuardado) || null;
+function guardarUsuarios() {
+  localStorage.setItem("cineMatchExtras", JSON.stringify(usuarios));
 }
 
-function guardarUsuarios() {
-  localStorage.setItem("cineMatchUsuarios", JSON.stringify(usuarios));
+// Manda datos por POST a un archivo PHP y devuelve { ok, datos }
+async function enviar(url, campos) {
+  const formulario = new FormData();
+  Object.keys(campos).forEach((nombre) => formulario.append(nombre, campos[nombre]));
+  try {
+    const respuesta = await fetch(url, { method: "POST", body: formulario });
+    const texto = await respuesta.text();
+    try {
+      return { ok: respuesta.ok, datos: JSON.parse(texto) };
+    } catch (error) {
+      // El servidor contestó, pero no con JSON: mostramos qué contestó para encontrar el problema
+      console.error("Respuesta de " + url + " (código " + respuesta.status + "):", texto);
+      const detalle = texto.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200);
+      return { ok: false, datos: { error: "El servidor no respondió como se esperaba (código " + respuesta.status + ") en " + url + ". Respuesta: " + (detalle || "vacía") } };
+    }
+  } catch (error) {
+    console.error(error);
+    return { ok: false, datos: { error: MENSAJE_SIN_CONEXION } };
+  }
+}
+
+// Pregunta al servidor quién tiene la sesión iniciada (null si nadie)
+async function traerSesion() {
+  try {
+    const respuesta = await fetch(CARPETA_API + "sesion.php");
+    return respuesta.ok ? await respuesta.json() : null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+// Une los datos del servidor con la copia local (favoritos, a quién sigo)
+function vincularConLocal(datos) {
+  let local = usuarios.find((u) => u.id === datos.id);
+  if (!local) {
+    local = { id: datos.id, siguiendo: [], favoritos: [] };
+    usuarios.push(local);
+  }
+  local.nombre = datos.nombre;
+  local.nombreCompleto = datos.nombre_completo || undefined;
+  local.rol = datos.rol;
+  local.bio = datos.bio || "";
+  local.foto = datos.foto || "";
+  guardarUsuarios();
+  return local;
+}
+
+async function cargarSesion() {
+  const datos = await traerSesion();
+  usuarioActual = datos ? vincularConLocal(datos) : null;
+  actualizarCuenta();
+  if (location.protocol === "file:") {
+    alert("Abriste la página con doble clic. Para que use la base de datos, abrila desde http://localhost/cinematch/");
+  }
 }
 
 function esAdmin() {
@@ -129,7 +182,7 @@ function errorCuenta(texto) {
   caja.classList.remove("oculto");
 }
 
-function crearCuenta(event) {
+async function crearCuenta(event) {
   event.preventDefault();
   const nombre = document.querySelector("#registro-usuario").value.trim();
   const email = document.querySelector("#registro-email").value.trim().toLowerCase();
@@ -139,52 +192,56 @@ function crearCuenta(event) {
     errorCuenta("El nombre de usuario debe tener entre 3 y 24 caracteres: letras, números, _ o .");
     return;
   }
-  if (usuarios.some((u) => u.nombre.toLowerCase() === nombre.toLowerCase())) {
-    errorCuenta("Ese nombre de usuario ya está en uso.");
-    return;
-  }
-  if (usuarios.some((u) => u.email === email)) {
-    errorCuenta("Ya existe una cuenta con ese correo.");
+  if (clave.length < 8) {
+    errorCuenta("La contraseña debe tener 8 caracteres o más.");
     return;
   }
 
-  const nueva = { id: Date.now(), nombre: nombre, email: email, clave: clave, rol: "usuario", bio: "", foto: "", siguiendo: [], favoritos: [] };
-  usuarios.push(nueva);
-  guardarUsuarios();
-  agregarNotificacion("¡Bienvenido a Cine Match!", "Tu cuenta fue creada con éxito.", nueva.id);
+  const registro = await enviar(CARPETA_API + "registro.php", { nombre: nombre, email: email, password: clave });
+  if (!registro.ok) {
+    errorCuenta(registro.datos.error);
+    return;
+  }
   document.querySelector("#form-registro").reset();
-  entrarCon(nueva);
+  await ingresar(nombre, clave); // después de crear la cuenta, inicia la sesión
 }
 
-function iniciarSesion(event) {
+async function iniciarSesion(event) {
   event.preventDefault();
-  const dato = document.querySelector("#login-usuario").value.trim().toLowerCase();
+  const dato = document.querySelector("#login-usuario").value.trim();
   const clave = document.querySelector("#login-clave").value;
+  await ingresar(dato, clave);
+}
 
-  const encontrado = usuarios.find((u) => u.nombre.toLowerCase() === dato || u.email === dato);
-  if (!encontrado || encontrado.clave !== clave) {
-    errorCuenta("El usuario o la contraseña no son correctos.");
+async function ingresar(dato, clave) {
+  const acceso = await enviar(CARPETA_API + "login.php", { usuario: dato, password: clave });
+  if (!acceso.ok) {
+    errorCuenta(acceso.datos.error);
+    return;
+  }
+  const datos = await traerSesion();
+  if (!datos) {
+    errorCuenta(MENSAJE_SIN_CONEXION);
     return;
   }
   document.querySelector("#form-login").reset();
-  entrarCon(encontrado);
+  entrarCon(vincularConLocal(datos));
 }
 
 // El administrador entra directo a su panel; los demás van al inicio
 function entrarCon(usuario) {
   usuarioActual = usuario;
-  localStorage.setItem("cineMatchSesion", usuario.id);
   cerrarCuenta();
   actualizarCuenta();
   navegar(esAdmin() ? "admin" : "inicio");
 }
 
-function cerrarSesion() {
+async function cerrarSesion() {
   if (!confirm("¿Estás seguro de que querés cerrar sesión?")) {
     return;
   }
+  await enviar(CARPETA_API + "logout.php", {});
   usuarioActual = null;
-  localStorage.removeItem("cineMatchSesion");
   actualizarCuenta();
   navegar("inicio");
 }
@@ -756,7 +813,7 @@ function quitarFoto() {
   document.querySelector("#ep-vista").src = fotoDe({ nombre: document.querySelector("#ep-nombre").value || usuarioActual.nombre, foto: "" });
 }
 
-function guardarPerfil(event) {
+async function guardarPerfil(event) {
   event.preventDefault();
   const nombre = document.querySelector("#ep-nombre").value.trim();
 
@@ -764,19 +821,20 @@ function guardarPerfil(event) {
     alert("El nombre de usuario debe tener entre 3 y 24 caracteres: letras, números, _ o .");
     return;
   }
-  if (usuarios.some((u) => u.id !== usuarioActual.id && u.nombre.toLowerCase() === nombre.toLowerCase())) {
-    alert("Ese nombre de usuario ya está en uso.");
+
+  const campos = { nombre: nombre, bio: document.querySelector("#ep-bio").value.trim() };
+  if (fotoPendiente !== null) {
+    campos.foto = fotoPendiente; // "" = quitar la foto
+  }
+
+  const guardado = await enviar(CARPETA_API + "perfil.php", campos);
+  if (!guardado.ok) {
+    alert(guardado.datos.error);
     return;
   }
 
-  usuarioActual.nombre = nombre;
-  usuarioActual.bio = document.querySelector("#ep-bio").value.trim();
-  if (fotoPendiente !== null) {
-    usuarioActual.foto = fotoPendiente;
-  }
+  usuarioActual = vincularConLocal(guardado.datos);
   fotoPendiente = null;
-  guardarUsuarios();
-
   document.querySelector("#form-perfil").classList.add("oculto");
   actualizarCuenta();
   mostrarPerfil();
@@ -1057,3 +1115,4 @@ function mostrarAdmin() {
 }
 
 actualizarCuenta();
+cargarSesion();
