@@ -317,27 +317,8 @@
 
         <div id="admin-metricas" class="grilla metricas"></div>
 
-        <div class="titulo-seccion">
-          <h2>Películas en cartelera</h2>
-          <button class="boton" onclick="mostrarFormularioPelicula()">+ Añadir película</button>
-        </div>
-
-        <form id="form-pelicula" class="panel oculto" onsubmit="agregarPelicula(event)">
-          <div class="campos">
-            <div><label>Título</label><input id="ap-titulo" type="text" required></div>
-            <div><label>Género</label>
-              <select id="ap-genero"><option value="Sci-Fi">Ciencia ficción</option><option value="Drama">Drama</option><option value="Accion">Acción</option><option value="Comedia">Comedia</option></select></div>
-            <div><label>Formato</label>
-              <select id="ap-formato"><option>2D</option><option>3D</option><option>IMAX</option></select></div>
-            <div><label>Duración (ej: 2h 10m)</label><input id="ap-duracion" type="text" required></div>
-            <div><label>Clasificación</label>
-              <select id="ap-clasificacion"><option>ATP</option><option>PG-13</option><option>R</option></select></div>
-            <div><label>Dirección</label><input id="ap-director" type="text" required></div>
-            <div><label>Imagen (dirección web que empiece con https)</label><input id="ap-imagen" type="url" required></div>
-            <div><label>Descripción</label><input id="ap-descripcion" type="text" required></div>
-          </div>
-          <br><button class="boton" type="submit">Guardar película</button>
-        </form>
+        <h2>Películas en cartelera</h2>
+        <p class="subtitulo">Se editan a mano en la sección "catalogo" de index.html.</p>
 
         <div id="admin-peliculas"></div>
 
@@ -347,7 +328,7 @@
     </section>
   </main>
 
-  <!-- VENTANA PARA INICIAR SESIÓN O CREAR CUENTA -->
+  <!-- iniciar sesion o crear cuemta-->
   <div id="ventana-cuenta" class="modal oculto">
     <div class="modal-caja">
       <div class="modal-titulo">
@@ -378,7 +359,7 @@
     </div>
   </div>
 
-  <!-- VENTANA PARA ESCRIBIR UNA RESEÑA -->
+  <!--reseña-->
   <div id="ventana-resena" class="modal oculto">
     <div class="modal-caja">
       <div class="modal-titulo">
@@ -407,6 +388,96 @@
       © 2026 Cine Match
     </div>
   </footer>
+
+  <!--aca editas las pelissssss-->
+  <section id="catalogo" hidden>
+
+    <div id="catalogo-peliculas">
+      <article data-id="1" data-genero="Sci-Fi">
+        <img src="../img/duna.jpg" alt="Póster de Dune: Part Two">
+        <h3>Dune: Part Two</h3>
+        <p class="generos">Ciencia Ficción / Aventura</p>
+        <p class="duracion">2h 45m</p>
+        <p class="clasificacion">PG-13</p>
+        <p class="director">Denis Villeneuve</p>
+        <p class="puntuacion">4.8</p>
+        <p class="formato">IMAX</p>
+        <p class="descripcion">Paul Atreides se une a Chani y a los Fremen mientras busca venganza contra los conspiradores que destruyeron a su familia.</p>
+      </article>
+
+      <article data-id="2" data-genero="Drama">
+        <img src="../img/odisea.jpg" alt="Póster de Oppenheimer">
+        <h3>Oppenheimer</h3>
+        <p class="generos">Drama / Historia</p>
+        <p class="duracion">3h 00m</p>
+        <p class="clasificacion">R</p>
+        <p class="director">Christopher Nolan</p>
+        <p class="puntuacion">4.5</p>
+        <p class="formato">2D</p>
+        <p class="descripcion">La historia del físico J. Robert Oppenheimer y su papel en el desarrollo de la primera bomba atómica.</p>
+      </article>
+
+      <article data-id="3" data-genero="Comedia">
+        <img src="../img/backroom.jpg" alt="Póster de Poor Things">
+        <h3>Poor Things</h3>
+        <p class="generos">Fantasía / Comedia</p>
+        <p class="duracion">2h 21m</p>
+        <p class="clasificacion">R</p>
+        <p class="director">Yorgos Lanthimos</p>
+        <p class="puntuacion">4.2</p>
+        <p class="formato">2D</p>
+        <p class="descripcion">Bella Baxter explora el mundo y descubre nuevas ideas sobre la libertad, la identidad y su propia vida.</p>
+      </article>
+
+      <article data-id="4" data-genero="Drama">
+        <img src="../img/planeta de los simios.jpg" alt="Póster de The Zone of Interest">
+        <h3>The Zone of Interest</h3>
+        <p class="generos">Drama / Bélico</p>
+        <p class="duracion">1h 45m</p>
+        <p class="clasificacion">PG-13</p>
+        <p class="director">Jonathan Glazer</p>
+        <p class="puntuacion">4.6</p>
+        <p class="formato">2D</p>
+        <p class="descripcion">La vida cotidiana de una familia que vive junto al campo de concentración de Auschwitz.</p>
+      </article>
+
+      <article data-id="5" data-genero="Accion">
+        <img src="../img/hailmary.jpg" alt="Póster de Civil War">
+        <h3>Hail Mary</h3>
+        <p class="generos">Acción / Thriller</p>
+        <p class="duracion">1h 49m</p>
+        <p class="clasificacion">R</p>
+        <p class="director">Alex Garland</p>
+        <p class="puntuacion">4.0</p>
+        <p class="formato">3D</p>
+        <p class="descripcion">En un futuro cercano, un grupo de periodistas viaja por un país dividido por una guerra civil.</p>
+      </article>
+    </div>
+
+    <div id="catalogo-proximos">
+      <article>
+        <img src="../imagenes/joker.jpg" alt="Póster de Joker: Folie à Deux">
+        <h3>Joker: Folie à Deux</h3>
+        <p class="generos">Thriller / Musical</p>
+        <p class="fecha">Próximo mes</p>
+      </article>
+
+      <article>
+        <img src="../imagenes/furiosa.jpg" alt="Póster de Furiosa: Mad Max">
+        <h3>Furiosa: Mad Max</h3>
+        <p class="generos">Acción / Aventura</p>
+        <p class="fecha">En 2 semanas</p>
+      </article>
+
+      <article>
+        <img src="../imagenes/gladiador.jpg" alt="Póster de Gladiador II">
+        <h3>Gladiador II</h3>
+        <p class="generos">Acción / Drama</p>
+        <p class="fecha">En 1 mes</p>
+      </article>
+    </div>
+
+  </section>
 
   <script src="../js/app.js"></script>
 </body>

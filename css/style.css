@@ -57,7 +57,7 @@ h2 { font-size: 22px; }
 .portada {
   background:
     linear-gradient(90deg, rgba(8, 10, 18, .97), rgba(8, 10, 18, .8) 50%, rgba(8, 10, 18, .35)),
-    url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&q=85&w=1800") center / cover;
+    url("../img/portada.jpg") center / cover;
   padding: 80px 0;
 }
 .portada h1 { font-size: clamp(36px, 5vw, 64px); line-height: 1.1; margin-bottom: 18px; max-width: 700px; }
@@ -291,3 +291,8 @@ button.libre:hover { background: var(--violeta); color: #111; }
   .boton-menu { display: block; }
   .portada { padding: 56px 0; }
 }
+
+.dias { display: flex; flex-wrap: wrap; gap: 8px; grid-column: 1 / -1; }
+.dia { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 20px; color: var(--texto); font-weight: 600; padding: 7px 16px; }
+.dia:hover { border-color: var(--violeta); }
+.dia.activo { background: var(--violeta); border-color: var(--violeta); color: #111; }

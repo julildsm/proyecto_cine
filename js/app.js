@@ -1,39 +1,30 @@
 // ===== Datos =====
-const peliculasIniciales = [
-  { id: 1, clasificacion: "PG-13", director: "Denis Villeneuve", titulo: "Dune: Part Two", genero: "Sci-Fi", generoCompleto: "Ciencia Ficción / Aventura", duracion: "2h 45m", puntuacion: 4.8, formato: "IMAX", imagen: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=400", descripcion: "Paul Atreides se une a Chani y a los Fremen mientras busca venganza contra los conspiradores que destruyeron a su familia." },
-  { id: 2, clasificacion: "R", director: "Christopher Nolan", titulo: "Oppenheimer", genero: "Drama", generoCompleto: "Drama / Historia", duracion: "3h 00m", puntuacion: 4.5, formato: "2D", imagen: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&q=80&w=400", descripcion: "La historia del físico J. Robert Oppenheimer y su papel en el desarrollo de la primera bomba atómica." },
-  { id: 3, clasificacion: "R", director: "Yorgos Lanthimos", titulo: "Poor Things", genero: "Comedia", generoCompleto: "Fantasía / Comedia", duracion: "2h 21m", puntuacion: 4.2, formato: "2D", imagen: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400", descripcion: "Bella Baxter explora el mundo y descubre nuevas ideas sobre la libertad, la identidad y su propia vida." },
-  { id: 4, clasificacion: "PG-13", director: "Jonathan Glazer", titulo: "The Zone of Interest", genero: "Drama", generoCompleto: "Drama / Bélico", duracion: "1h 45m", puntuacion: 4.6, formato: "2D", imagen: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&q=80&w=400", descripcion: "La vida cotidiana de una familia que vive junto al campo de concentración de Auschwitz." },
-  { id: 5, clasificacion: "R", director: "Alex Garland", titulo: "Civil War", genero: "Accion", generoCompleto: "Acción / Thriller", duracion: "1h 49m", puntuacion: 4.0, formato: "3D", imagen: "https://images.unsplash.com/photo-1535016120720-40c646be5580?auto=format&fit=crop&q=80&w=400", descripcion: "En un futuro cercano, un grupo de periodistas viaja por un país dividido por una guerra civil." }
-];
-
-let peliculas = JSON.parse(localStorage.getItem("cineMatchPeliculas")) || peliculasIniciales;
-
-const proximos = [
-  { titulo: "Joker: Folie à Deux", genero: "Thriller / Musical", fecha: "Próximo mes", imagen: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&q=80&w=400" },
-  { titulo: "Furiosa: Mad Max", genero: "Acción / Aventura", fecha: "En 2 semanas", imagen: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&q=80&w=400" }
-];
-
-const resenasRecientes = [
-  { usuario: "@cinefilo_99", cuando: "Hace 2 horas", pelicula: "Dune: Part Two", texto: "Una experiencia audiovisual imponente en la sala IMAX. La banda sonora de Hans Zimmer retumba en todo el pecho. Obra maestra del cine de ciencia ficción moderno." },
-  { usuario: "@marcos_cines", cuando: "Ayer", pelicula: "Poor Things", texto: "Increíbles actuaciones de Emma Stone y Willem Dafoe. La dirección de arte y el diseño de vestuario son fuera de serie." },
-  { usuario: "@valeria_film", cuando: "Hace 3 días", pelicula: "The Zone of Interest", texto: "El diseño de sonido de esta película es probablemente de lo mejor del año. Perturbadora y brillante." },
-  { usuario: "@cinefilo_99", cuando: "Hace 1 semana", pelicula: "Dune: Part Two", texto: "Sublime. La escala de las escenas en el desierto y la banda sonora hacen que valga cada segundo en sala IMAX." }
-];
+// Las películas y los próximos estrenos se escriben a mano en index.html (sección "catalogo").
+// Solo los combos del candy bar siguen viniendo de la base de datos (api/combos.php).
+let peliculas = [];
+let proximos = [];
+let combos = [];
 
 // Evita que un texto escrito por una persona se interprete como HTML
 function limpiar(texto) {
   return String(texto).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+// ===== Cuentas =====
+// Las cuentas viven en MySQL: la página le pide todo a la carpeta api/ con fetch().
+// TEMPORAL: favoritos, a quién sigo, reseñas, compras y notificaciones todavía se guardan
+// en el navegador. Para eso se guarda una copia local de cada usuario (con su mismo id).
+// Se va sacando a medida que cada parte pasa a la base de datos.
+// Carpeta donde están los PHP, vista desde el index.html.
+// Si tu index.html está en otra carpeta, cambiá solo esta línea (por ejemplo "../api/").
 const CARPETA_API = "../api/";
 
 const MENSAJE_SIN_CONEXION = "No se pudo conectar con el servidor. Abrí la página desde http://localhost/cinematch/ con Apache y MySQL encendidos.";
 
 const usuariosIniciales = [
   { id: 1, nombre: "admin", rol: "admin", bio: "Administración de Cine Match.", foto: "", siguiendo: [], favoritos: [] },
-  { id: 3, nombre: "marcos_cines", nombreCompleto: "Marcos Cine", rol: "usuario", bio: "", foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100", resenasBase: 34, siguiendo: [], favoritos: [] },
-  { id: 4, nombre: "valeria_film", nombreCompleto: "Valeria Gómez", rol: "usuario", bio: "", foto: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=100", resenasBase: 52, siguiendo: [], favoritos: [] }
+  { id: 3, nombre: "marcos_cines", nombreCompleto: "Marcos Cine", rol: "usuario", bio: "", foto: "", resenasBase: 34, siguiendo: [], favoritos: [] },
+  { id: 4, nombre: "valeria_film", nombreCompleto: "Valeria Gómez", rol: "usuario", bio: "", foto: "", resenasBase: 52, siguiendo: [], favoritos: [] }
 ];
 
 let usuarios = JSON.parse(localStorage.getItem("cineMatchExtras")) || usuariosIniciales;
@@ -52,7 +43,7 @@ async function enviar(url, campos) {
     const respuesta = await fetch(url, { method: "POST", body: formulario });
     const texto = await respuesta.text();
     try {
-      return { ok: respuesta.ok, datos: JSON.parse(texto) };
+      return { ok: respuesta.ok, estado: respuesta.status, datos: JSON.parse(texto) };
     } catch (error) {
       // El servidor contestó, pero no con JSON: mostramos qué contestó para encontrar el problema
       console.error("Respuesta de " + url + " (código " + respuesta.status + "):", texto);
@@ -95,10 +86,16 @@ function vincularConLocal(datos) {
 async function cargarSesion() {
   const datos = await traerSesion();
   usuarioActual = datos ? vincularConLocal(datos) : null;
+  await cargarDatosDeLaCuenta();
   actualizarCuenta();
   if (location.protocol === "file:") {
-    alert("Abriste la página con doble clic. Para que use la base de datos, abrila desde http://localhost/cinematch/");
+    alert("Abriste la página con doble clic. Para que use la base de datos, abrila desde http://localhost/");
   }
+}
+
+// Favoritos y notificaciones de la persona que tiene la sesión iniciada
+async function cargarDatosDeLaCuenta() {
+  await Promise.all([cargarFavoritos(), cargarNotificaciones()]);
 }
 
 function esAdmin() {
@@ -225,12 +222,13 @@ async function ingresar(dato, clave) {
     return;
   }
   document.querySelector("#form-login").reset();
-  entrarCon(vincularConLocal(datos));
+  await entrarCon(vincularConLocal(datos));
 }
 
 // El administrador entra directo a su panel; los demás van al inicio
-function entrarCon(usuario) {
+async function entrarCon(usuario) {
   usuarioActual = usuario;
+  await cargarDatosDeLaCuenta();
   cerrarCuenta();
   actualizarCuenta();
   navegar(esAdmin() ? "admin" : "inicio");
@@ -242,6 +240,7 @@ async function cerrarSesion() {
   }
   await enviar(CARPETA_API + "logout.php", {});
   usuarioActual = null;
+  await cargarDatosDeLaCuenta();
   actualizarCuenta();
   navegar("inicio");
 }
@@ -278,19 +277,73 @@ function abrirMenu() {
   document.querySelector("#menu").classList.toggle("abierto");
 }
 
+// ===== Catálogo (películas, estrenos y combos) =====
+// Pide un dato a la API con GET y devuelve { ok, datos }
+async function traer(ruta) {
+  try {
+    const respuesta = await fetch(CARPETA_API + ruta);
+    const texto = await respuesta.text();
+    try {
+      return { ok: respuesta.ok, datos: JSON.parse(texto) };
+    } catch (error) {
+      console.error("Respuesta de " + CARPETA_API + ruta + " (código " + respuesta.status + "):", texto);
+      return { ok: false, datos: { error: "No se pudo leer " + CARPETA_API + ruta + " (código " + respuesta.status + "). Revisá la línea CARPETA_API del script." } };
+    }
+  } catch (error) {
+    console.error(error);
+    return { ok: false, datos: { error: MENSAJE_SIN_CONEXION } };
+  }
+}
+
+// Devuelve el texto de un elemento de la tarjeta, por ejemplo texto(tarjeta, ".director")
+function texto(tarjeta, selector) {
+  return tarjeta.querySelector(selector).textContent.trim();
+}
+
+// Lee las películas y los estrenos que están escritos en index.html
+function leerCatalogo() {
+  peliculas = [...document.querySelectorAll("#catalogo-peliculas article")].map((a) => ({
+    id: Number(a.dataset.id),
+    genero: a.dataset.genero,
+    titulo: texto(a, "h3"),
+    generoCompleto: texto(a, ".generos"),
+    duracion: texto(a, ".duracion"),
+    clasificacion: texto(a, ".clasificacion"),
+    director: texto(a, ".director"),
+    puntuacion: Number(texto(a, ".puntuacion")),
+    formato: texto(a, ".formato"),
+    descripcion: texto(a, ".descripcion"),
+    imagen: a.querySelector("img").getAttribute("src")
+  }));
+
+  proximos = [...document.querySelectorAll("#catalogo-proximos article")].map((a) => ({
+    titulo: texto(a, "h3"),
+    genero: texto(a, ".generos"),
+    fecha: texto(a, ".fecha"),
+    imagen: a.querySelector("img").getAttribute("src")
+  }));
+}
+
+async function cargarCombos() {
+  const respuesta = await traer("combos.php");
+  if (respuesta.ok) {
+    combos = respuesta.datos;
+  }
+}
+
 // ===== Tarjetas =====
 function tarjetaPelicula(p) {
   return `
     <article class="pelicula">
       <div class="poster" onclick="verPelicula(${p.id})">
-        <img src="${p.imagen}" alt="Póster de ${p.titulo}">
+        <img src="${limpiar(p.imagen)}" alt="Póster de ${limpiar(p.titulo)}">
         <span class="puntaje">${p.puntuacion ? "★ " + p.puntuacion : "Nueva"}</span>
         <span class="formato">${p.formato}</span>
       </div>
       <div class="info">
         <div>
-          <h3>${p.titulo}</h3>
-          <p>${p.generoCompleto} • ${p.duracion}</p>
+          <h3>${limpiar(p.titulo)}</h3>
+          <p>${limpiar(p.generoCompleto)} • ${p.duracion}</p>
         </div>
         <button class="boton-chico" onclick="comprarEntradas(${p.id})">🎟 Entradas</button>
       </div>
@@ -298,10 +351,17 @@ function tarjetaPelicula(p) {
 }
 
 // ===== Inicio =====
-function mostrarInicio() {
-  document.querySelector("#inicio-peliculas").innerHTML = peliculas.map(tarjetaPelicula).join("");
+async function mostrarInicio() {
+  document.querySelector("#inicio-peliculas").innerHTML =
+    peliculas.map(tarjetaPelicula).join("") || '<p class="vacio">No hay películas en cartelera.</p>';
 
-  document.querySelector("#inicio-resenas").innerHTML = resenasRecientes.slice(0, 3).map(tarjetaResena).join("");
+  const resenas = await traer("resenas.php?recientes=3");
+  document.querySelector("#inicio-resenas").innerHTML =
+    (resenas.ok ? resenas.datos : []).map(tarjetaResenaDeApi).join("") || '<p class="vacio">Todavía no hay reseñas.</p>';
+}
+
+function tarjetaResenaDeApi(r) {
+  return tarjetaResena({ usuario: "@" + r.usuario, cuando: haceCuanto(r.ts * 1000), pelicula: limpiar(r.pelicula), texto: limpiar(r.texto), estrellas: r.estrellas });
 }
 
 function tarjetaResena(r) {
@@ -342,38 +402,87 @@ function mostrarCartelera() {
   document.querySelector("#proximos").innerHTML = proximos.map((p) => `
     <article class="pelicula proxima">
       <div class="poster">
-        <img src="${p.imagen}" alt="Póster de ${p.titulo}">
-        <span class="formato">${p.fecha}</span>
+        <img src="${limpiar(p.imagen)}" alt="Póster de ${limpiar(p.titulo)}">
+        <span class="formato">${limpiar(p.fecha)}</span>
       </div>
       <div class="info">
-        <div><h3>${p.titulo}</h3><p>${p.genero}</p></div>
+        <div><h3>${limpiar(p.titulo)}</h3><p>${limpiar(p.genero)}</p></div>
         <button class="boton-chico" disabled>Próximamente</button>
       </div>
     </article>`).join("");
 }
 
-mostrarInicio();
-mostrarCartelera();
-
 // ===== Ficha de la película =====
-const salas = [
-  { numero: 1, nombre: "Sala 1 - IMAX Láser", formato: "IMAX", precio: 12, horas: ["16:30", "20:00"] },
-  { numero: 3, nombre: "Sala 3 - 3D Atmos", formato: "3D", precio: 10, horas: ["18:15", "21:45"] },
-  { numero: 4, nombre: "Sala 4 - 2D Tradicional", formato: "2D", precio: 8, horas: ["15:00", "19:30"] }
-];
-
-let peliculaActual = peliculas[0];
+let peliculaActual = null;
+let funcionesActuales = []; // funciones de la película que se está viendo o comprando
 
 function buscarPelicula(id) {
   return peliculas.find((p) => p.id === id);
 }
 
-function verPelicula(id) {
+async function cargarFunciones(peliculaId) {
+  const respuesta = await traer("funciones.php?pelicula_id=" + peliculaId);
+  funcionesActuales = respuesta.ok ? respuesta.datos : [];
+}
+
+// "2026-11-06" → "Hoy", "Mañana" o "vie 06/11"
+function nombreDia(fecha) {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const dia = new Date(fecha + "T00:00");
+  const diferencia = Math.round((dia - hoy) / 86400000);
+  if (diferencia === 0) { return "Hoy"; }
+  if (diferencia === 1) { return "Mañana"; }
+  return dia.toLocaleDateString("es-AR", { weekday: "short", day: "2-digit", month: "2-digit" });
+}
+
+// Funciones de la película: un selector de día y, debajo, una tarjeta por sala con sus horarios
+let diaElegido = "";
+
+function mostrarFuncionesDelDia() {
+  const contenedor = document.querySelector("#pelicula-funciones");
+  const fechas = [...new Set(funcionesActuales.map((f) => f.fecha))];
+  if (fechas.length === 0) {
+    contenedor.innerHTML = '<p class="vacio">Esta película todavía no tiene funciones cargadas.</p>';
+    return;
+  }
+  if (!fechas.includes(diaElegido)) {
+    diaElegido = fechas[0];
+  }
+
+  const salas = {};
+  funcionesActuales.filter((f) => f.fecha === diaElegido).forEach((f) => {
+    salas[f.sala_numero] = salas[f.sala_numero] || [];
+    salas[f.sala_numero].push(f);
+  });
+
+  const dias = fechas.map((fecha) => {
+    return `<button class="dia ${fecha === diaElegido ? "activo" : ""}" onclick="elegirDia('${fecha}')">${nombreDia(fecha)}</button>`;
+  }).join("");
+
+  contenedor.innerHTML = '<div class="dias">' + dias + "</div>" + Object.keys(salas).map((numero) => {
+    const lista = salas[numero];
+    return `
+      <div class="sala-tarjeta">
+        <header><strong>${limpiar(lista[0].sala_nombre)}</strong><span class="etiqueta-formato">${lista[0].formato}</span></header>
+        <div class="horas">
+          ${lista.map((f) => `<button class="hora" onclick="empezarCompra(${f.id})">${f.hora} HS</button>`).join("")}
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function elegirDia(fecha) {
+  diaElegido = fecha;
+  mostrarFuncionesDelDia();
+}
+
+async function verPelicula(id) {
   peliculaActual = buscarPelicula(id);
   const p = peliculaActual;
 
-  document.querySelector("#pelicula-hero").style.backgroundImage = "url(" + p.imagen.replace("w=400", "w=1600") + ")";
-  document.querySelector("#pelicula-poster").src = p.imagen.replace("w=400", "w=600");
+  document.querySelector("#pelicula-hero").style.backgroundImage = "url(" + p.imagen + ")";
+  document.querySelector("#pelicula-poster").src = p.imagen;
   document.querySelector("#pelicula-clasificacion").textContent = p.clasificacion;
   document.querySelector("#pelicula-genero").textContent = p.generoCompleto;
   document.querySelector("#pelicula-duracion").textContent = p.duracion;
@@ -381,98 +490,80 @@ function verPelicula(id) {
   document.querySelector("#pelicula-puntuacion").textContent = p.puntuacion ? "★ " + p.puntuacion.toFixed(1) : "Nueva";
   document.querySelector("#pelicula-director").textContent = p.director;
   document.querySelector("#pelicula-descripcion").textContent = p.descripcion;
-
-  document.querySelector("#pelicula-funciones").innerHTML = salas.map((sala) => `
-    <div class="sala-tarjeta">
-      <header><strong>${sala.nombre}</strong><span class="etiqueta-formato">${sala.formato}</span></header>
-      <div class="horas">
-        ${sala.horas.map((h) => `<button class="hora" onclick="empezarCompra(${sala.numero}, '${h}')">${h} HS</button>`).join("")}
-      </div>
-    </div>`).join("");
-
-  const propias = leerResenas().filter((r) => r.peliculaId === p.id).map((r) => ({ usuario: "@" + nombreDe(r.usuarioId), cuando: "Recién", pelicula: r.pelicula, texto: limpiar(r.texto), estrellas: r.estrellas }));
-  const resenas = propias.concat(resenasRecientes.filter((r) => r.pelicula === p.titulo));
-  document.querySelector("#pelicula-resenas").innerHTML =
-    resenas.map(tarjetaResena).join("") || "<p>Todavía no hay reseñas de esta película.</p>";
-
+  document.querySelector("#pelicula-funciones").innerHTML = '<p class="vacio">Cargando funciones…</p>';
+  document.querySelector("#pelicula-resenas").innerHTML = '<p class="vacio">Cargando reseñas…</p>';
   actualizarBotonFavorito();
   navegar("pelicula");
+
+  await cargarFunciones(id);
+  diaElegido = "";
+  mostrarFuncionesDelDia();
+
+  const resenas = await traer("resenas.php?pelicula_id=" + id);
+  document.querySelector("#pelicula-resenas").innerHTML =
+    (resenas.ok ? resenas.datos : []).map(tarjetaResenaDeApi).join("") || "<p>Todavía no hay reseñas de esta película.</p>";
 }
 
 // ===== Compra =====
-const fechas = ["Hoy - Miércoles 21 de Octubre", "Mañana - Jueves 22 de Octubre", "Viernes 23 de Octubre"];
-
-const combos = [
-  { id: 1, nombre: "Combo Popcorn Dúo", detalle: "1 pochoclo gigante + 2 bebidas medianas", precio: 14.5, imagen: "https://images.unsplash.com/photo-1585647347483-22b66260dfff?auto=format&fit=crop&q=80&w=300" },
-  { id: 2, nombre: "Combo Individual Pro", detalle: "1 pochoclo mediano + 1 bebida grande + golosina", precio: 9.5, imagen: "https://images.unsplash.com/photo-1578849278619-e73505e9610f?auto=format&fit=crop&q=80&w=300" },
-  { id: 3, nombre: "Combo Nachos Especial", detalle: "1 porción de nachos con queso + 1 bebida grande", precio: 11, imagen: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=300" }
-];
-
-const asientosOcupadosDeEjemplo = ["A1", "C3", "C4"];
-
-let compra = { fecha: fechas[0], sala: 1, hora: "20:00", asientos: [], combos: {} };
+let compra = { funcion: null, asientos: [], combos: {} };
+let ocupadosActuales = []; // asientos ya vendidos de la función elegida
 let pasoActual = 1;
 
 function dinero(n) {
   return "$" + n.toFixed(2) + " USD";
 }
 
-function leerCompras() {
-  return JSON.parse(localStorage.getItem("cineMatchCompras")) || [];
-}
-
-function salaActual() {
-  return salas.find((s) => s.numero === compra.sala);
-}
-
-function claveFuncion() {
-  return peliculaActual.id + "|" + compra.fecha + "|" + compra.sala + "|" + compra.hora;
-}
-
-function asientosOcupados() {
-  const comprados = leerCompras()
-    .filter((c) => c.estado === "confirmada" && c.claveFuncion === claveFuncion())
-    .flatMap((c) => c.asientos);
-  return asientosOcupadosDeEjemplo.concat(comprados);
-}
-
-function comprarEntradas(id) {
+async function comprarEntradas(id) {
   peliculaActual = buscarPelicula(id);
-  empezarCompra(1, "20:00");
+  await cargarFunciones(id);
+  if (funcionesActuales.length === 0) {
+    alert("Esta película todavía no tiene funciones cargadas.");
+    return;
+  }
+  empezarCompra(funcionesActuales[0].id);
 }
 
-function empezarCompra(numeroSala, hora) {
-  compra = { fecha: fechas[0], sala: numeroSala, hora: hora, asientos: [], combos: {} };
+function empezarCompra(funcionId) {
+  const funcion = funcionesActuales.find((f) => f.id === funcionId);
+  compra = { funcion: funcion, asientos: [], combos: {} };
   document.querySelector("#compra-titulo").textContent = peliculaActual.titulo;
 
-  document.querySelector("#compra-fecha").innerHTML = fechas.map((f) => "<option>" + f + "</option>").join("");
-
-  let opciones = "";
-  salas.forEach((sala) => {
-    sala.horas.forEach((h) => {
-      const seleccionada = sala.numero === numeroSala && h === hora ? "selected" : "";
-      opciones += `<option value="${sala.numero}|${h}" ${seleccionada}>${h} HS - ${sala.nombre} - ${dinero(sala.precio)}</option>`;
-    });
-  });
-  document.querySelector("#compra-funcion").innerHTML = opciones;
+  const fechas = [...new Set(funcionesActuales.map((f) => f.fecha))];
+  document.querySelector("#compra-fecha").innerHTML = fechas.map((fecha) => {
+    return `<option value="${fecha}" ${fecha === funcion.fecha ? "selected" : ""}>${nombreDia(fecha)} - ${fecha}</option>`;
+  }).join("");
+  llenarFunciones(funcion.id);
+  document.querySelector("#compra-fecha").onchange = () => llenarFunciones();
 
   navegar("compra");
+  pasoActual = 1;
   irAPaso(1);
 }
 
-function leerFuncionElegida() {
-  const partes = document.querySelector("#compra-funcion").value.split("|");
+// Llena el selector de horarios con las funciones del día elegido
+function llenarFunciones(seleccionadaId) {
   const fecha = document.querySelector("#compra-fecha").value;
-  const cambio = fecha !== compra.fecha || Number(partes[0]) !== compra.sala || partes[1] !== compra.hora;
-  compra.fecha = fecha;
-  compra.sala = Number(partes[0]);
-  compra.hora = partes[1];
-  if (cambio) {
+  document.querySelector("#compra-funcion").innerHTML = funcionesActuales
+    .filter((f) => f.fecha === fecha)
+    .map((f) => `<option value="${f.id}" ${f.id === seleccionadaId ? "selected" : ""}>${f.hora} HS - ${limpiar(f.sala_nombre)} - ${dinero(f.precio)}</option>`)
+    .join("");
+}
+
+function leerFuncionElegida() {
+  const id = Number(document.querySelector("#compra-funcion").value);
+  if (id !== compra.funcion.id) {
+    compra.funcion = funcionesActuales.find((f) => f.id === id);
     compra.asientos = [];
   }
 }
 
-function irAPaso(numero) {
+async function cargarOcupados() {
+  const respuesta = await traer("asientos.php?funcion_id=" + compra.funcion.id);
+  ocupadosActuales = respuesta.ok ? respuesta.datos : [];
+  compra.asientos = compra.asientos.filter((a) => !ocupadosActuales.includes(a));
+}
+
+async function irAPaso(numero) {
   if (pasoActual === 1 && numero !== 1) {
     leerFuncionElegida();
   }
@@ -485,7 +576,8 @@ function irAPaso(numero) {
   });
 
   if (numero === 2) {
-    document.querySelector("#precio-entrada").textContent = dinero(salaActual().precio);
+    document.querySelector("#precio-entrada").textContent = dinero(compra.funcion.precio);
+    await cargarOcupados();
     mostrarAsientos();
   }
   if (numero === 3) {
@@ -497,14 +589,12 @@ function irAPaso(numero) {
 }
 
 function mostrarAsientos() {
-  const ocupados = asientosOcupados();
   let html = "";
-
   ["A", "B", "C", "D", "E"].forEach((fila) => {
     html += `<div class="fila-asientos"><b>${fila}</b>`;
     for (let n = 1; n <= 8; n++) {
       const id = fila + n;
-      if (ocupados.includes(id)) {
+      if (ocupadosActuales.includes(id)) {
         html += `<span class="asiento ocupado">${n}</span>`;
       } else if (compra.asientos.includes(id)) {
         html += `<button class="asiento elegido" onclick="elegirAsiento('${id}')">${n}</button>`;
@@ -533,8 +623,8 @@ function elegirAsiento(id) {
 function mostrarCombos() {
   document.querySelector("#lista-combos").innerHTML = combos.map((c) => `
     <div class="combo">
-      <img src="${c.imagen}" alt="${c.nombre}">
-      <div><h3>${c.nombre}</h3><p>${c.detalle}</p><strong>${dinero(c.precio)}</strong></div>
+      <img src="${limpiar(c.imagen)}" alt="${limpiar(c.nombre)}">
+      <div><h3>${limpiar(c.nombre)}</h3><p>${limpiar(c.detalle)}</p><strong>${dinero(c.precio)}</strong></div>
       <div class="cantidad">
         <button onclick="cambiarCombo(${c.id}, -1)">-</button>
         <span>${compra.combos[c.id] || 0}</span>
@@ -548,8 +638,9 @@ function cambiarCombo(id, cambio) {
   mostrarCombos();
 }
 
+// Solo para mostrar el resumen: el total que vale lo calcula el servidor al comprar
 function calcularTotales() {
-  const entradas = compra.asientos.length * salaActual().precio;
+  const entradas = compra.asientos.length * compra.funcion.precio;
   let combosTotal = 0;
   combos.forEach((c) => { combosTotal += (compra.combos[c.id] || 0) * c.precio; });
   return { entradas: entradas, combos: combosTotal, total: entradas + combosTotal };
@@ -557,103 +648,110 @@ function calcularTotales() {
 
 function mostrarResumen() {
   const t = calcularTotales();
-  const sala = salaActual();
+  const f = compra.funcion;
   document.querySelector("#resumen").innerHTML = `
     <h3>Detalle del pedido</h3>
-    <div class="linea"><span>Película:</span><span>${peliculaActual.titulo}</span></div>
-    <div class="linea"><span>Función:</span><span>${compra.fecha} · ${compra.hora} HS (${sala.formato})</span></div>
+    <div class="linea"><span>Película:</span><span>${limpiar(peliculaActual.titulo)}</span></div>
+    <div class="linea"><span>Función:</span><span>${nombreDia(f.fecha)} · ${f.hora} HS (${f.formato})</span></div>
     <div class="linea"><span>Asientos:</span><span>${compra.asientos.join(", ")}</span></div>
     <div class="linea"><span>Entradas:</span><span>${dinero(t.entradas)}</span></div>
     <div class="linea"><span>Combos:</span><span>${dinero(t.combos)}</span></div>
     <div class="linea total"><span>TOTAL A PAGAR:</span><span>${dinero(t.total)}</span></div>`;
 }
 
-function pagar() {
+// Las compras sin cuenta se recuerdan por su código, para poder verlas y cancelarlas después
+function leerCodigos() {
+  return JSON.parse(localStorage.getItem("cineMatchCodigos")) || [];
+}
+
+function guardarCodigoInvitado(codigo) {
+  const lista = leerCodigos();
+  lista.push(codigo);
+  localStorage.setItem("cineMatchCodigos", JSON.stringify(lista));
+}
+
+async function pagar() {
   if (compra.asientos.length === 0) {
     alert("Elegí al menos un asiento antes de pagar.");
     return;
   }
-  const yaTomados = asientosOcupados();
-  if (compra.asientos.some((a) => yaTomados.includes(a))) {
-    alert("Uno de los asientos ya fue comprado. Elegí otros.");
-    irAPaso(2);
+  const combosElegidos = Object.keys(compra.combos)
+    .filter((id) => compra.combos[id] > 0)
+    .map((id) => id + ":" + compra.combos[id])
+    .join(",");
+
+  const resultado = await enviar(CARPETA_API + "comprar.php", {
+    funcion_id: compra.funcion.id,
+    asientos: compra.asientos.join(","),
+    combos: combosElegidos
+  });
+  if (!resultado.ok) {
+    alert(resultado.datos.error);
+    if (resultado.estado === 409) {
+      await irAPaso(2); // vuelve a pedir los asientos ocupados
+    }
     return;
   }
 
-  const sala = salaActual();
-  const codigo = "CM-" + String(Date.now()).slice(-6);
-  const lista = leerCompras();
-  lista.push({
-    id: "compra-" + Date.now(),
-    usuarioId: idDueno(),
-    codigo: codigo,
-    peliculaId: peliculaActual.id,
-    pelicula: peliculaActual.titulo,
-    fecha: compra.fecha,
-    hora: compra.hora,
-    sala: sala.nombre,
-    formato: sala.formato,
-    asientos: compra.asientos,
-    combos: compra.combos,
-    total: calcularTotales().total,
-    estado: "confirmada",
-    claveFuncion: claveFuncion(),
-    creada: Date.now()
-  });
-  localStorage.setItem("cineMatchCompras", JSON.stringify(lista));
-
-  agregarNotificacion("Reserva confirmada:", "Tu compra para " + peliculaActual.titulo + " ha sido procesada con éxito.");
-
+  const codigo = resultado.datos.codigo;
+  if (!usuarioActual) {
+    guardarCodigoInvitado(codigo);
+  }
   document.querySelector("#exito-detalle").innerHTML = `
     <div class="linea"><span>Código de reserva:</span><strong>#${codigo}</strong></div>
-    <div class="linea"><span>Película:</span><strong>${peliculaActual.titulo}</strong></div>
-    <div class="linea"><span>Asientos:</span><strong>${compra.asientos.join(", ")}</strong></div>`;
+    <div class="linea"><span>Película:</span><strong>${limpiar(peliculaActual.titulo)}</strong></div>
+    <div class="linea"><span>Asientos:</span><strong>${resultado.datos.asientos}</strong></div>
+    <div class="linea"><span>Total pagado:</span><strong>${dinero(resultado.datos.total)}</strong></div>`;
 
   compra.asientos = [];
   compra.combos = {};
   pasoActual = 5;
   document.querySelectorAll(".paso").forEach((p) => p.classList.add("oculto"));
   document.querySelector("#paso-exito").classList.remove("oculto");
+  cargarNotificaciones();
 }
 
 // ===== Favoritos =====
-function leerFavoritos() {
-  return usuarioActual ? usuarioActual.favoritos : [];
+let favoritosIds = [];
+
+async function cargarFavoritos() {
+  if (!usuarioActual) {
+    favoritosIds = [];
+    return;
+  }
+  const respuesta = await traer("favoritos.php");
+  favoritosIds = respuesta.ok ? respuesta.datos : [];
 }
 
-function guardarFavoritos(lista) {
-  if (usuarioActual) {
-    usuarioActual.favoritos = lista;
-    guardarUsuarios();
-  }
+function leerFavoritos() {
+  return favoritosIds;
 }
 
 function actualizarBotonFavorito() {
   const boton = document.querySelector("#boton-favorito");
-  const esFavorita = leerFavoritos().includes(peliculaActual.id);
+  const esFavorita = peliculaActual !== null && leerFavoritos().includes(peliculaActual.id);
   boton.textContent = esFavorita ? "♥ En favoritos" : "♡ Guardar en favoritos";
   boton.classList.toggle("activo", esFavorita);
 }
 
-function alternarFavorito() {
+async function alternarFavorito() {
   if (!usuarioActual) {
     avisarSinCuenta("guardar películas en favoritos");
     return;
   }
-  let favoritos = leerFavoritos();
-  if (favoritos.includes(peliculaActual.id)) {
-    favoritos = favoritos.filter((id) => id !== peliculaActual.id);
-    alert("La película se quitó de tus favoritos.");
-  } else {
-    favoritos.unshift(peliculaActual.id);
-    alert("¡Película guardada en tus favoritos!");
+  const resultado = await enviar(CARPETA_API + "favoritos.php", { pelicula_id: peliculaActual.id });
+  if (!resultado.ok) {
+    alert(resultado.datos.error);
+    return;
   }
-  guardarFavoritos(favoritos);
+  await cargarFavoritos();
   actualizarBotonFavorito();
+  alert(resultado.datos.favorita ? "¡Película guardada en tus favoritos!" : "La película se quitó de tus favoritos.");
 }
 
-function quitarFavorito(id) {
-  guardarFavoritos(leerFavoritos().filter((f) => f !== id));
+async function quitarFavorito(id) {
+  await enviar(CARPETA_API + "favoritos.php", { pelicula_id: id });
+  await cargarFavoritos();
   mostrarFavoritos();
   mostrarPerfil();
 }
@@ -662,8 +760,8 @@ function tarjetaFavorita(p) {
   return `
     <article class="favorita">
       <button class="ver" onclick="verPelicula(${p.id})" title="Ver película">
-        <img src="${p.imagen}" alt="${p.titulo}">
-        <strong>${p.titulo}</strong>
+        <img src="${limpiar(p.imagen)}" alt="${limpiar(p.titulo)}">
+        <strong>${limpiar(p.titulo)}</strong>
       </button>
       <button class="quitar" onclick="quitarFavorito(${p.id})">Quitar de favoritos</button>
     </article>`;
@@ -685,8 +783,9 @@ function mostrarFavoritos() {
 // ===== Reseñas propias =====
 let estrellasElegidas = 0;
 
+// TEMPORAL: la lista de Comunidad todavía cuenta reseñas desde acá; pasa a la base con "seguir"
 function leerResenas() {
-  return JSON.parse(localStorage.getItem("cineMatchResenas")) || [];
+  return [];
 }
 
 function abrirResena() {
@@ -714,7 +813,7 @@ function elegirEstrellas(n) {
   document.querySelector("#resena-aviso").textContent = n + " de 5 estrellas";
 }
 
-function publicarResena() {
+async function publicarResena() {
   if (!usuarioActual) {
     avisarSinCuenta("calificar películas");
     return;
@@ -728,16 +827,23 @@ function publicarResena() {
     alert("Escribí tu opinión antes de publicarla.");
     return;
   }
-  const lista = leerResenas();
-  lista.unshift({ usuarioId: usuarioActual.id, peliculaId: peliculaActual.id, pelicula: peliculaActual.titulo, estrellas: estrellasElegidas, texto: texto, creada: Date.now() });
-  localStorage.setItem("cineMatchResenas", JSON.stringify(lista));
+  const resultado = await enviar(CARPETA_API + "resenas.php", {
+    pelicula_id: peliculaActual.id,
+    estrellas: estrellasElegidas,
+    texto: texto
+  });
+  if (!resultado.ok) {
+    alert(resultado.datos.error);
+    return;
+  }
   cerrarResena();
-  verPelicula(peliculaActual.id);
+  await verPelicula(peliculaActual.id);
+  mostrarInicio();
   alert("¡Tu reseña se publicó y quedó guardada en tu perfil!");
 }
 
 // ===== Perfil =====
-function mostrarPerfil() {
+async function mostrarPerfil() {
   const u = usuarioActual;
   document.querySelector("#perfil-invitado").classList.toggle("oculto", u !== null);
   document.querySelector("#perfil-contenido").classList.toggle("oculto", u === null);
@@ -746,17 +852,20 @@ function mostrarPerfil() {
     return;
   }
 
-  const propias = leerResenas().filter((r) => r.usuarioId === u.id);
   document.querySelector("#perfil-foto").src = fotoDe(u);
   document.querySelector("#perfil-nombre").textContent = u.nombreCompleto || u.nombre;
   document.querySelector("#perfil-arroba").textContent = "@" + u.nombre;
   document.querySelector("#perfil-bio").textContent = u.bio || "Todavía no escribiste una biografía.";
   document.querySelector("#perfil-seguidores").textContent = usuarios.filter((x) => x.siguiendo.includes(u.id)).length;
   document.querySelector("#perfil-siguiendo").textContent = u.siguiendo.length;
-  document.querySelector("#perfil-nresenas").textContent = (u.resenasBase || 0) + propias.length;
+  document.querySelector("#perfil-favoritas").innerHTML =
+    listaDeFavoritas().map(tarjetaFavorita).join("") || '<p class="vacio">Todavía no agregaste películas a tus favoritos.</p>';
 
+  const respuesta = await traer("resenas.php?usuario_id=" + u.id);
+  const propias = respuesta.ok ? respuesta.datos : [];
+  document.querySelector("#perfil-nresenas").textContent = propias.length;
   document.querySelector("#perfil-resenas").innerHTML = propias.map((r) => {
-    const fecha = new Date(r.creada).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
+    const fecha = new Date(r.ts * 1000).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
     return `
       <article class="mini-resena">
         <header><strong>${limpiar(r.pelicula)}</strong><span class="estrellas">${"★".repeat(r.estrellas)}${"☆".repeat(5 - r.estrellas)} (${r.estrellas}/5)</span></header>
@@ -764,9 +873,6 @@ function mostrarPerfil() {
         <small>Publicado el ${fecha}</small>
       </article>`;
   }).join("") || '<p class="vacio">Todavía no publicaste reseñas. ¡Calificá una película para que aparezca acá!</p>';
-
-  document.querySelector("#perfil-favoritas").innerHTML =
-    listaDeFavoritas().map(tarjetaFavorita).join("") || '<p class="vacio">Todavía no agregaste películas a tus favoritos.</p>';
 }
 
 // ===== Editar perfil =====
@@ -856,12 +962,17 @@ function limpiarAvisosCancelacion() {
   mostrarAvisosCancelacion();
 }
 
-function mostrarMisCompras() {
+async function mostrarMisCompras() {
   mostrarAvisosCancelacion();
 
-  const lista = leerCompras()
-    .filter((c) => (c.usuarioId || 0) === idDueno())
-    .sort((a, b) => b.creada - a.creada);
+  // Con cuenta: las compras de la cuenta. Sin cuenta: las que se hicieron desde este navegador.
+  let ruta = "compras.php";
+  if (!usuarioActual) {
+    ruta += "?codigos=" + encodeURIComponent(leerCodigos().join(","));
+  }
+  const respuesta = await traer(ruta);
+  const lista = respuesta.ok ? respuesta.datos : [];
+
   if (lista.length === 0) {
     document.querySelector("#compras-lista").innerHTML = '<div class="panel vacio"><strong>Todavía no tenés compras.</strong><br>Cuando compres una entrada, va a aparecer acá.</div>';
     return;
@@ -869,22 +980,18 @@ function mostrarMisCompras() {
 
   document.querySelector("#compras-lista").innerHTML = lista.map((c) => {
     const cancelada = c.estado === "cancelada";
-    const nombresCombos = combos
-      .filter((combo) => c.combos[combo.id] > 0)
-      .map((combo) => combo.nombre + " x" + c.combos[combo.id])
-      .join(", ") || "Sin combos";
     const ultimaColumna = cancelada
-      ? '<span>Los asientos fueron liberados.</span>'
-      : `<button class="boton-cancelar" onclick="cancelarCompra('${c.id}')">Cancelar entrada</button>`;
+      ? "<span>Los asientos fueron liberados. Reembolso: " + (c.reembolso || "pendiente") + ".</span>"
+      : `<button class="boton-cancelar" onclick="cancelarCompra('${c.codigo}')">Cancelar entrada</button>`;
     return `
       <article class="compra">
         <div class="compra-cabecera">
-          <div><small>RESERVA #${c.codigo}</small><h3>${limpiar(c.pelicula)}</h3><p>${c.fecha} · ${c.hora} HS · ${c.sala}</p></div>
+          <div><small>RESERVA #${c.codigo}</small><h3>${limpiar(c.pelicula)}</h3><p>${nombreDia(c.fecha)} · ${c.hora} HS · ${limpiar(c.sala_nombre)}</p></div>
           <span class="estado ${c.estado}">${cancelada ? "Cancelada" : "Confirmada"}</span>
         </div>
         <div class="compra-datos">
-          <div><span>Asientos</span><strong>${c.asientos.join(", ")}</strong></div>
-          <div><span>Combos</span><strong>${nombresCombos}</strong></div>
+          <div><span>Asientos</span><strong>${c.asientos_texto}</strong></div>
+          <div><span>Combos</span><strong>${limpiar(c.combos_texto || "Sin combos")}</strong></div>
           <div><span>Total pagado</span><strong>${dinero(c.total)}</strong></div>
           <div>${ultimaColumna}</div>
         </div>
@@ -892,25 +999,18 @@ function mostrarMisCompras() {
   }).join("");
 }
 
-function cancelarCompra(id) {
-  const lista = leerCompras();
-  const compraACancelar = lista.find((c) => c.id === id);
-  if (!compraACancelar || compraACancelar.estado !== "confirmada") {
-    return;
-  }
-  if ((compraACancelar.usuarioId || 0) !== idDueno()) {
-    alert("Solo podés cancelar tus propias entradas.");
-    return;
-  }
+async function cancelarCompra(codigo) {
   if (!confirm("¿Querés cancelar esta entrada? Los asientos van a volver a estar disponibles.")) {
     return;
   }
-  compraACancelar.estado = "cancelada";
-  localStorage.setItem("cineMatchCompras", JSON.stringify(lista));
-  agregarNotificacion("Entrada cancelada:", "Cancelaste tu entrada para " + compraACancelar.pelicula + ". Los asientos quedaron disponibles.");
-
-  avisosCancelacion.push("Los asientos " + compraACancelar.asientos.join(", ") + " de «" + limpiar(compraACancelar.pelicula) + "» fueron cancelados y quedaron disponibles.");
+  const resultado = await enviar(CARPETA_API + "cancelar_compra.php", { codigo: codigo });
+  if (!resultado.ok) {
+    alert(resultado.datos.error);
+    return;
+  }
+  avisosCancelacion.push("Los asientos " + resultado.datos.asientos + " de «" + limpiar(resultado.datos.pelicula) + "» fueron cancelados y quedaron disponibles.");
   sessionStorage.setItem("cineMatchAvisos", JSON.stringify(avisosCancelacion));
+  cargarNotificaciones();
   mostrarMisCompras();
 }
 
@@ -950,39 +1050,20 @@ function alternarSeguir(id) {
     usuarioActual.siguiendo = usuarioActual.siguiendo.filter((x) => x !== id);
   } else {
     usuarioActual.siguiendo.push(id);
-    agregarNotificacion("@" + usuarioActual.nombre, "comenzó a seguirte.", id);
   }
   guardarUsuarios();
   mostrarComunidad();
 }
 
 // ===== Notificaciones =====
-// Cada notificación guarda a qué usuario pertenece
-function leerTodasLasNotificaciones() {
-  return JSON.parse(localStorage.getItem("cineMatchNotificaciones")) || [];
-}
+let notificacionesCache = [];
 
-function leerNotificaciones() {
-  if (!usuarioActual) {
-    return [];
+async function cargarNotificaciones() {
+  notificacionesCache = [];
+  if (usuarioActual) {
+    const respuesta = await traer("notificaciones.php");
+    notificacionesCache = respuesta.ok ? respuesta.datos : [];
   }
-  return leerTodasLasNotificaciones().filter((n) => n.usuarioId === usuarioActual.id);
-}
-
-function guardarNotificaciones(propias) {
-  const ajenas = leerTodasLasNotificaciones().filter((n) => !usuarioActual || n.usuarioId !== usuarioActual.id);
-  localStorage.setItem("cineMatchNotificaciones", JSON.stringify(propias.concat(ajenas)));
-  actualizarPunto();
-}
-
-function agregarNotificacion(titulo, texto, paraUsuarioId) {
-  const destino = paraUsuarioId === undefined ? idDueno() : paraUsuarioId;
-  if (!destino) {
-    return; // las compras sin cuenta no generan notificaciones
-  }
-  const todas = leerTodasLasNotificaciones();
-  todas.unshift({ usuarioId: destino, titulo: titulo, texto: texto, creada: Date.now(), leida: false });
-  localStorage.setItem("cineMatchNotificaciones", JSON.stringify(todas));
   actualizarPunto();
 }
 
@@ -995,124 +1076,82 @@ function haceCuanto(milisegundos) {
 }
 
 function actualizarPunto() {
-  const hayNuevas = leerNotificaciones().some((n) => !n.leida);
+  const hayNuevas = notificacionesCache.some((n) => !n.leida);
   document.querySelector("#punto-notificaciones").classList.toggle("oculto", !hayNuevas);
 }
 
-function mostrarNotificaciones() {
+async function mostrarNotificaciones() {
   if (!usuarioActual) {
     document.querySelector("#notificaciones-lista").innerHTML = panelInvitado("Iniciá sesión o creá una cuenta para ver tus notificaciones.");
     return;
   }
-  const lista = leerNotificaciones();
-  document.querySelector("#notificaciones-lista").innerHTML = lista.map((n) => `
+  await cargarNotificaciones();
+  document.querySelector("#notificaciones-lista").innerHTML = notificacionesCache.map((n) => `
     <div class="notificacion ${n.leida ? "" : "nueva"}">
       <p><strong>${limpiar(n.titulo)}</strong> ${limpiar(n.texto)}</p>
-      <small>${haceCuanto(n.creada)}</small>
+      <small>${haceCuanto(n.ts * 1000)}</small>
     </div>`).join("") || '<p class="vacio">No tenés notificaciones.</p>';
 
-  lista.forEach((n) => { n.leida = true; });
-  guardarNotificaciones(lista);
+  if (notificacionesCache.some((n) => !n.leida)) {
+    await enviar(CARPETA_API + "notificaciones.php", { accion: "leer" });
+    notificacionesCache.forEach((n) => { n.leida = true; });
+    actualizarPunto();
+  }
 }
 
 // ===== Administración =====
-const nombresGenero = { "Sci-Fi": "Ciencia Ficción", "Drama": "Drama", "Accion": "Acción", "Comedia": "Comedia" };
-
-function guardarPeliculas() {
-  localStorage.setItem("cineMatchPeliculas", JSON.stringify(peliculas));
-  mostrarInicio();
-  mostrarCartelera();
-  mostrarAdmin();
-}
-
-function mostrarFormularioPelicula() {
+// Lo que se ve acá lo controla la base: aunque alguien llame a estos PHP a mano, solo responden al admin
+async function mostrarAdmin() {
   if (!esAdmin()) { return; }
-  document.querySelector("#form-pelicula").classList.toggle("oculto");
-}
-
-function agregarPelicula(event) {
-  event.preventDefault();
-  if (!esAdmin()) { return; }
-  const imagen = document.querySelector("#ap-imagen").value.trim();
-  if (!imagen.startsWith("https://")) {
-    alert("La imagen tiene que ser una dirección web que empiece con https://");
+  const respuesta = await traer("admin_resumen.php");
+  if (!respuesta.ok) {
+    document.querySelector("#admin-metricas").innerHTML = '<p class="vacio">' + limpiar(respuesta.datos.error) + "</p>";
     return;
   }
-  const genero = document.querySelector("#ap-genero").value;
-  peliculas.push({
-    id: Date.now(),
-    clasificacion: document.querySelector("#ap-clasificacion").value,
-    director: limpiar(document.querySelector("#ap-director").value.trim()),
-    titulo: limpiar(document.querySelector("#ap-titulo").value.trim()),
-    genero: genero,
-    generoCompleto: nombresGenero[genero],
-    duracion: limpiar(document.querySelector("#ap-duracion").value.trim()),
-    puntuacion: 0,
-    formato: document.querySelector("#ap-formato").value,
-    imagen: limpiar(imagen),
-    descripcion: limpiar(document.querySelector("#ap-descripcion").value.trim())
-  });
-  document.querySelector("#form-pelicula").reset();
-  document.querySelector("#form-pelicula").classList.add("oculto");
-  guardarPeliculas();
-  alert("La película se agregó a la cartelera.");
-}
-
-function eliminarPelicula(id) {
-  if (!esAdmin()) { return; }
-  if (!confirm("¿Querés sacar esta película de la cartelera?")) {
-    return;
-  }
-  peliculas = peliculas.filter((p) => p.id !== id);
-  guardarPeliculas();
-}
-
-function decidirReembolso(id, decision) {
-  if (!esAdmin()) { return; }
-  const lista = leerCompras();
-  lista.find((c) => c.id === id).reembolso = decision;
-  localStorage.setItem("cineMatchCompras", JSON.stringify(lista));
-  mostrarAdmin();
-}
-
-function mostrarAdmin() {
-  if (!esAdmin()) { return; }
-  const compras = leerCompras();
-  const confirmadas = compras.filter((c) => c.estado === "confirmada");
-  const canceladas = compras.filter((c) => c.estado === "cancelada");
-  let ventas = 0;
-  let entradas = 0;
-  confirmadas.forEach((c) => { ventas += c.total; entradas += c.asientos.length; });
-  const pendientes = canceladas.filter((c) => !c.reembolso).length;
+  const d = respuesta.datos;
 
   document.querySelector("#admin-metricas").innerHTML = `
-    <div class="metrica"><span>Ventas totales</span><strong>${dinero(ventas)}</strong></div>
-    <div class="metrica"><span>Entradas vendidas</span><strong>${entradas}</strong></div>
-    <div class="metrica"><span>Películas en cartelera</span><strong>${peliculas.length}</strong></div>
-    <div class="metrica"><span>Reembolsos pendientes</span><strong>${pendientes}</strong></div>`;
+    <div class="metrica"><span>Ventas totales</span><strong>${dinero(d.ventas)}</strong></div>
+    <div class="metrica"><span>Entradas vendidas</span><strong>${d.entradas}</strong></div>
+    <div class="metrica"><span>Películas en cartelera</span><strong>${d.peliculas}</strong></div>
+    <div class="metrica"><span>Reembolsos pendientes</span><strong>${d.pendientes}</strong></div>`;
 
   document.querySelector("#admin-peliculas").innerHTML = peliculas.map((p) => `
     <div class="admin-fila">
-      <div><strong>${p.titulo}</strong><small>${p.generoCompleto} • ${p.duracion} • ${p.formato}</small></div>
-      <button class="boton-cancelar chico" onclick="eliminarPelicula(${p.id})">Quitar</button>
+      <div><strong>${limpiar(p.titulo)}</strong><small>${limpiar(p.generoCompleto)} • ${p.duracion} • ${p.formato}</small></div>
     </div>`).join("") || '<p class="vacio">No hay películas en cartelera.</p>';
 
-  document.querySelector("#admin-reembolsos").innerHTML = canceladas.map((c) => {
+  document.querySelector("#admin-reembolsos").innerHTML = d.reembolsos.map((c) => {
     let acciones = `
       <div class="botones">
-        <button class="boton chico" onclick="decidirReembolso('${c.id}', 'aprobado')">Aprobar</button>
-        <button class="boton-borde chico" onclick="decidirReembolso('${c.id}', 'rechazado')">Rechazar</button>
+        <button class="boton chico" onclick="decidirReembolso('${c.codigo}', 'aprobado')">Aprobar</button>
+        <button class="boton-borde chico" onclick="decidirReembolso('${c.codigo}', 'rechazado')">Rechazar</button>
       </div>`;
-    if (c.reembolso) {
+    if (c.reembolso !== "pendiente") {
       acciones = `<span class="${c.reembolso}">${c.reembolso === "aprobado" ? "Aprobado" : "Rechazado"}</span>`;
     }
     return `
       <div class="admin-fila">
-        <div><strong>Reserva #${c.codigo}</strong><small>${c.pelicula} • ${dinero(c.total)} • ${c.usuarioId ? "@" + nombreDe(c.usuarioId) : "sin cuenta"}</small></div>
+        <div><strong>Reserva #${c.codigo}</strong><small>${limpiar(c.pelicula)} • ${dinero(c.total)} • ${c.usuario ? "@" + limpiar(c.usuario) : "sin cuenta"}</small></div>
         ${acciones}
       </div>`;
   }).join("") || '<p class="vacio">No hay solicitudes de reembolso.</p>';
 }
 
+async function decidirReembolso(codigo, decision) {
+  if (!esAdmin()) { return; }
+  const resultado = await enviar(CARPETA_API + "admin_reembolso.php", { codigo: codigo, decision: decision });
+  if (!resultado.ok) {
+    alert(resultado.datos.error);
+    return;
+  }
+  await mostrarAdmin();
+}
+
+// ===== Arranque =====
 actualizarCuenta();
 cargarSesion();
+leerCatalogo();
+cargarCombos();
+mostrarInicio();
+mostrarCartelera();
