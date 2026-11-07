@@ -51,8 +51,10 @@ try {
     if ($minutos < 30 || $minutos > 400) {
         responder(400, ["error" => "La duración tiene que ser como 2h 10m."]);
     }
-    if (strpos($imagen, "https://") !== 0 || strlen($imagen) > 500) {
-        responder(400, ["error" => "La imagen tiene que ser una dirección web que empiece con https://"]);
+    // La imagen puede ser un archivo de la carpeta img (ej: ../img/matrix.jpg) o una dirección web con https://
+    $esArchivoLocal = preg_match('#^\.\./img/[\w\-. ]+\.(jpe?g|png|webp|gif|avif)$#i', $imagen) === 1;
+    if ((!$esArchivoLocal && strpos($imagen, "https://") !== 0) || strlen($imagen) > 500) {
+        responder(400, ["error" => "La imagen tiene que ser un archivo de la carpeta img (ej: matrix.jpg) o una dirección web con https://"]);
     }
 
     $consulta = $conexion->prepare(

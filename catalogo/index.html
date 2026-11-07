@@ -317,8 +317,27 @@
 
         <div id="admin-metricas" class="grilla metricas"></div>
 
-        <h2>Películas en cartelera</h2>
-        <p class="subtitulo">Se editan a mano en la sección "catalogo" de index.html.</p>
+        <div class="titulo-seccion">
+          <h2>Películas en cartelera</h2>
+          <button class="boton" onclick="mostrarFormularioPelicula()">+ Añadir película</button>
+        </div>
+
+        <form id="form-pelicula" class="panel oculto" onsubmit="agregarPelicula(event)">
+          <div class="campos">
+            <div><label>Título</label><input id="ap-titulo" type="text" required></div>
+            <div><label>Género</label>
+              <select id="ap-genero"><option value="Sci-Fi">Ciencia ficción</option><option value="Drama">Drama</option><option value="Accion">Acción</option><option value="Comedia">Comedia</option></select></div>
+            <div><label>Formato</label>
+              <select id="ap-formato"><option>2D</option><option>3D</option><option>IMAX</option></select></div>
+            <div><label>Duración (ej: 2h 10m)</label><input id="ap-duracion" type="text" required></div>
+            <div><label>Clasificación</label>
+              <select id="ap-clasificacion"><option>ATP</option><option>PG-13</option><option>R</option></select></div>
+            <div><label>Dirección</label><input id="ap-director" type="text" required></div>
+            <div><label>Imagen (nombre del archivo en la carpeta img, ej: matrix.jpg)</label><input id="ap-imagen" type="text" required></div>
+            <div><label>Descripción</label><input id="ap-descripcion" type="text" required></div>
+          </div>
+          <br><button class="boton" type="submit">Guardar película</button>
+        </form>
 
         <div id="admin-peliculas"></div>
 
@@ -406,74 +425,67 @@
       </article>
 
       <article data-id="2" data-genero="Drama">
-        <img src="../img/odisea.jpg" alt="Póster de Oppenheimer">
-        <h3>Oppenheimer</h3>
+        <img src="../img/odisea.jpg" alt="Póster de La odisea">
+        <h3>La odisea</h3>
         <p class="generos">Drama / Historia</p>
-        <p class="duracion">3h 00m</p>
+        <p class="duracion">2h 52m</p>
         <p class="clasificacion">R</p>
         <p class="director">Christopher Nolan</p>
         <p class="puntuacion">4.5</p>
         <p class="formato">2D</p>
-        <p class="descripcion">La historia del físico J. Robert Oppenheimer y su papel en el desarrollo de la primera bomba atómica.</p>
+        <p class="descripcion">La Odisea es una película épica de acción británica-estadounidense, escrita, dirigida y producida por Christopher Nolan. Está basada en el poema griego homónimo de Homero y protagonizada por Matt Damon en el papel de Odiseo, el rey griego de Ítaca</p>
       </article>
 
-      <article data-id="3" data-genero="Comedia">
-        <img src="../img/backroom.jpg" alt="Póster de Poor Things">
-        <h3>Poor Things</h3>
-        <p class="generos">Fantasía / Comedia</p>
+      <article data-id="3" data-genero="Sci-Fi">
+        <img src="../img/backroom.jpg" alt="Póster de Backrooms: Sin Salida">
+        <h3>Backrooms: Sin Salida</h3>
+        <p class="generos">Terror/Ciencia ficcion</p>
         <p class="duracion">2h 21m</p>
         <p class="clasificacion">R</p>
-        <p class="director">Yorgos Lanthimos</p>
+        <p class="director">Kane Parsons </p>
         <p class="puntuacion">4.2</p>
         <p class="formato">2D</p>
-        <p class="descripcion">Bella Baxter explora el mundo y descubre nuevas ideas sobre la libertad, la identidad y su propia vida.</p>
+        <p class="descripcion">Una puerta extraña aparece en el sótano de una tienda de muebles y da paso a habitaciones infinitas donde el tiempo se dobla y lo más aterrador es sentir algo acechando. Backrooms nace del folclore de internet.</p>
       </article>
 
       <article data-id="4" data-genero="Drama">
-        <img src="../img/planeta de los simios.jpg" alt="Póster de The Zone of Interest">
-        <h3>The Zone of Interest</h3>
-        <p class="generos">Drama / Bélico</p>
-        <p class="duracion">1h 45m</p>
+        <img src="../img/obsession.jpg" alt="Póster de Obsession">
+        <h3>Obsession</h3>
+        <p class="generos">Terror</p>
+        <p class="duracion">1h 48m</p>
         <p class="clasificacion">PG-13</p>
-        <p class="director">Jonathan Glazer</p>
+        <p class="director">Curry Barker</p>
         <p class="puntuacion">4.6</p>
         <p class="formato">2D</p>
-        <p class="descripcion">La vida cotidiana de una familia que vive junto al campo de concentración de Auschwitz.</p>
+        <p class="descripcion">Tras romper el misterioso Sauce de los Deseos para conquistar el corazón de la chica que le gusta, un romántico empedernido consigue exactamente lo que pidió, pero pronto descubre que algunos deseos tienen un precio oscuro y siniestro.</p>
       </article>
 
       <article data-id="5" data-genero="Accion">
-        <img src="../img/hailmary.jpg" alt="Póster de Civil War">
+        <img src="../img/hailmary.jpg" alt="Póster de Hail Mary">
         <h3>Hail Mary</h3>
         <p class="generos">Acción / Thriller</p>
-        <p class="duracion">1h 49m</p>
+        <p class="duracion">2h 36m</p>
         <p class="clasificacion">R</p>
-        <p class="director">Alex Garland</p>
+        <p class="director">Phil Lord, Christopher Miller</p>
         <p class="puntuacion">4.0</p>
         <p class="formato">3D</p>
-        <p class="descripcion">En un futuro cercano, un grupo de periodistas viaja por un país dividido por una guerra civil.</p>
+        <p class="descripcion">El profesor Ryland Grace despierta en una nave espacial sin recordar quién es. Al recuperar la memoria, descubre que debe resolver el misterio de una sustancia que causa la extinción del Sol. Recurre a su formación científica e ingenio, aunque posiblemente no esté solo.</p>
       </article>
     </div>
 
     <div id="catalogo-proximos">
       <article>
-        <img src="../imagenes/joker.jpg" alt="Póster de Joker: Folie à Deux">
-        <h3>Joker: Folie à Deux</h3>
-        <p class="generos">Thriller / Musical</p>
+        <img src="../img/doomsday.jpg" alt="Póster de Avengers: Doomsday">
+        <h3>Avengers: Doomsday</h3>
+        <p class="generos">Ciencia ficción/Acción</p>
         <p class="fecha">Próximo mes</p>
       </article>
 
       <article>
-        <img src="../imagenes/furiosa.jpg" alt="Póster de Furiosa: Mad Max">
-        <h3>Furiosa: Mad Max</h3>
-        <p class="generos">Acción / Aventura</p>
+        <img src="../img/losjuegosdelhambre.jpg" alt="Póster de Los juegos del hambre: amanecer en la cosecha">
+        <h3>Los juegos del hambre: amanecer en la cosecha</h3>
+        <p class="generos">Aventura</p>
         <p class="fecha">En 2 semanas</p>
-      </article>
-
-      <article>
-        <img src="../imagenes/gladiador.jpg" alt="Póster de Gladiador II">
-        <h3>Gladiador II</h3>
-        <p class="generos">Acción / Drama</p>
-        <p class="fecha">En 1 mes</p>
       </article>
     </div>
 

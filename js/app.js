@@ -1,7 +1,8 @@
 // ===== Datos =====
-// Las películas y los próximos estrenos se escriben a mano en index.html (sección "catalogo").
-// Solo los combos del candy bar siguen viniendo de la base de datos (api/combos.php).
-let peliculas = [];
+// Los datos de las películas y los estrenos se escriben a mano en index.html (sección "catalogo").
+// La base de datos decide cuáles películas están activas (las que se agregan o quitan desde el panel de admin).
+let peliculasHtml = [];   // las escritas en index.html
+let peliculas = [];       // las que se muestran en la página
 let proximos = [];
 let combos = [];
 
@@ -302,7 +303,7 @@ function texto(tarjeta, selector) {
 
 // Lee las películas y los estrenos que están escritos en index.html
 function leerCatalogo() {
-  peliculas = [...document.querySelectorAll("#catalogo-peliculas article")].map((a) => ({
+  peliculasHtml = [...document.querySelectorAll("#catalogo-peliculas article")].map((a) => ({
     id: Number(a.dataset.id),
     genero: a.dataset.genero,
     titulo: texto(a, "h3"),
@@ -315,6 +316,7 @@ function leerCatalogo() {
     descripcion: texto(a, ".descripcion"),
     imagen: a.querySelector("img").getAttribute("src")
   }));
+  peliculas = peliculasHtml;
 
   proximos = [...document.querySelectorAll("#catalogo-proximos article")].map((a) => ({
     titulo: texto(a, "h3"),
@@ -322,6 +324,25 @@ function leerCatalogo() {
     fecha: texto(a, ".fecha"),
     imagen: a.querySelector("img").getAttribute("src")
   }));
+}
+
+function formatoDuracion(minutos) {
+  return Math.floor(minutos / 60) + "h " + String(minutos % 60).padStart(2, "0") + "m";
+}
+
+// Pide a la base cuáles películas están activas. Si una está escrita en index.html se usa ese texto;
+// si la agregaste desde el panel de admin, se usan los datos guardados en la base.
+async function cargarPeliculas() {
+  const respuesta = await traer("peliculas.php");
+  if (respuesta.ok) {
+    peliculas = respuesta.datos.map((p) => peliculasHtml.find((h) => h.id === p.id) || {
+      id: p.id, titulo: p.titulo, genero: p.genero, generoCompleto: p.genero_completo,
+      duracion: formatoDuracion(p.duracion_min), clasificacion: p.clasificacion, director: p.director,
+      puntuacion: p.puntuacion, formato: p.formato, imagen: p.imagen, descripcion: p.descripcion
+    });
+  }
+  mostrarInicio();
+  mostrarCartelera();
 }
 
 async function cargarCombos() {
@@ -1119,6 +1140,7 @@ async function mostrarAdmin() {
   document.querySelector("#admin-peliculas").innerHTML = peliculas.map((p) => `
     <div class="admin-fila">
       <div><strong>${limpiar(p.titulo)}</strong><small>${limpiar(p.generoCompleto)} • ${p.duracion} • ${p.formato}</small></div>
+      <button class="boton-cancelar chico" onclick="eliminarPelicula(${p.id})">Quitar</button>
     </div>`).join("") || '<p class="vacio">No hay películas en cartelera.</p>';
 
   document.querySelector("#admin-reembolsos").innerHTML = d.reembolsos.map((c) => {
@@ -1138,6 +1160,49 @@ async function mostrarAdmin() {
   }).join("") || '<p class="vacio">No hay solicitudes de reembolso.</p>';
 }
 
+function mostrarFormularioPelicula() {
+  if (!esAdmin()) { return; }
+  document.querySelector("#form-pelicula").classList.toggle("oculto");
+}
+
+async function agregarPelicula(event) {
+  event.preventDefault();
+  if (!esAdmin()) { return; }
+  const resultado = await enviar(CARPETA_API + "admin_pelicula.php", {
+    accion: "agregar",
+    titulo: document.querySelector("#ap-titulo").value,
+    genero: document.querySelector("#ap-genero").value,
+    formato: document.querySelector("#ap-formato").value,
+    duracion: document.querySelector("#ap-duracion").value,
+    clasificacion: document.querySelector("#ap-clasificacion").value,
+    director: document.querySelector("#ap-director").value,
+    imagen: "../img/" + document.querySelector("#ap-imagen").value.trim(),
+    descripcion: document.querySelector("#ap-descripcion").value
+  });
+  if (!resultado.ok) {
+    alert(resultado.datos.error);
+    return;
+  }
+  document.querySelector("#form-pelicula").reset();
+  document.querySelector("#form-pelicula").classList.add("oculto");
+  await cargarPeliculas();
+  await mostrarAdmin();
+  alert("La película se agregó a la cartelera.");
+}
+
+async function eliminarPelicula(id) {
+  if (!esAdmin() || !confirm("¿Querés sacar esta película de la cartelera?")) {
+    return;
+  }
+  const resultado = await enviar(CARPETA_API + "admin_pelicula.php", { accion: "quitar", id: id });
+  if (!resultado.ok) {
+    alert(resultado.datos.error);
+    return;
+  }
+  await cargarPeliculas();
+  await mostrarAdmin();
+}
+
 async function decidirReembolso(codigo, decision) {
   if (!esAdmin()) { return; }
   const resultado = await enviar(CARPETA_API + "admin_reembolso.php", { codigo: codigo, decision: decision });
@@ -1152,6 +1217,7 @@ async function decidirReembolso(codigo, decision) {
 actualizarCuenta();
 cargarSesion();
 leerCatalogo();
-cargarCombos();
 mostrarInicio();
 mostrarCartelera();
+cargarPeliculas();
+cargarCombos();
