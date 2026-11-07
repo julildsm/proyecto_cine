@@ -10,8 +10,43 @@ let combos = [];
 function limpiar(texto) {
   return String(texto).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 }
+// estos son los carteles
+function cartel(tipo, titulo, texto, botones) {
+  return new Promise((resolver) => {
+    const iconos = { info: "i", exito: "✓", error: "!", pregunta: "?" };
+    $("#cartel-icono").textContent = iconos[tipo];
+    $("#cartel-icono").className = "cartel-icono " + tipo;
+    $("#cartel-titulo").textContent = titulo;
+    $("#cartel-texto").textContent = texto;
+    $("#cartel-botones").innerHTML = "";
+    botones.forEach(([etiqueta, clase, valor]) => {
+      const boton = document.createElement("button");
+      boton.className = clase;
+      boton.textContent = etiqueta;
+      boton.onclick = () => {
+        $("#cartel").classList.add("oculto");
+        resolver(valor);
+      };
+      $("#cartel-botones").appendChild(boton);
+    });
+    $("#cartel").classList.remove("oculto");
+    $("#cartel-botones").lastChild.focus();
+  });
+}
 
-// cuentas
+function avisar(texto, tipo = "info") {
+  const titulos = { info: "Aviso", exito: "¡Listo!", error: "Ups, algo salió mal" };
+  return cartel(tipo, titulos[tipo], texto, [["Entendido", "boton", true]]);
+}
+
+function confirmar(texto, boton = "Aceptar", peligro = false) {
+  return cartel("pregunta", "¿Estás seguro?", texto, [
+    ["Cancelar", "boton-borde", false],
+    [boton, peligro ? "boton boton-peligro" : "boton", true]
+  ]);
+}
+
+// cuentas de mierda
 const CARPETA_API = "../api/";
 
 const MENSAJE_SIN_CONEXION = "No se pudo conectar con el servidor. Abrí la página desde http://localhost/cinematch/ con Apache y MySQL encendidos.";
@@ -44,7 +79,7 @@ async function enviar(url, campos) {
 
 // si el servidor devolvió un error, lo muestra en un cartel y devuelve true
 function huboError(resultado) {
-  if (!resultado.ok) alert(resultado.datos.error);
+  if (!resultado.ok) avisar(resultado.datos.error, "error");
   return !resultado.ok;
 }
 
@@ -80,7 +115,7 @@ async function cargarSesion() {
   await cargarDatosDeLaCuenta();
   actualizarCuenta();
   if (location.protocol === "file:") {
-    alert("Abriste la página con doble clic. Para que use la base de datos, abrila desde http://localhost/");
+    avisar("Abriste la página con doble clic. Para que use la base de datos, abrila desde http://localhost/", "error");
   }
 }
 
@@ -111,8 +146,8 @@ function fotoDe(u) {
     "<text x='50' y='67' font-size='52' font-weight='700' text-anchor='middle' fill='#111' font-family='sans-serif'>" + letra + "</text></svg>");
 }
 
-function avisarSinCuenta(accion) {
-  alert("Necesitás una cuenta para " + accion + ". Iniciá sesión o creá una cuenta.");
+async function avisarSinCuenta(accion) {
+  await avisar("Necesitás una cuenta para " + accion + ". Iniciá sesión o creá una cuenta.");
   abrirCuenta("login");
 }
 
@@ -212,7 +247,7 @@ async function entrarCon(usuario) {
 }
 
 async function cerrarSesion() {
-  if (!confirm("¿Estás seguro de que querés cerrar sesión?")) return;
+  if (!(await confirmar("Vas a salir de tu cuenta. Podés volver a entrar cuando quieras.", "Cerrar sesión"))) return;
   await enviar(CARPETA_API + "logout.php", {});
   usuarioActual = null;
   await cargarDatosDeLaCuenta();
@@ -228,7 +263,7 @@ const alAbrir = {
 
 function navegar(nombre) {
   if (nombre === "admin" && !esAdmin()) {
-    alert("Esta sección es solo para el administrador.");
+    avisar("Esta sección es solo para el administrador.");
     nombre = "inicio";
   }
   if (nombre === "inicio") limpiarAvisosCancelacion();
@@ -484,7 +519,7 @@ async function comprarEntradas(id) {
   peliculaActual = buscarPelicula(id);
   await cargarFunciones(id);
   if (funcionesActuales.length === 0) {
-    alert("Esta película todavía no tiene funciones cargadas.");
+    avisar("Esta película todavía no tiene funciones cargadas.");
     return;
   }
   empezarCompra(funcionesActuales[0].id);
@@ -637,7 +672,7 @@ function guardarCodigoInvitado(codigo) {
 }
 
 async function pagar() {
-  if (compra.asientos.length === 0) { alert("Elegí al menos un asiento antes de pagar."); return; }
+  if (compra.asientos.length === 0) { avisar("Elegí al menos un asiento antes de pagar."); return; }
   const combosElegidos = Object.keys(compra.combos)
     .filter((id) => compra.combos[id] > 0)
     .map((id) => id + ":" + compra.combos[id])
@@ -649,7 +684,7 @@ async function pagar() {
     combos: combosElegidos
   });
   if (!resultado.ok) {
-    alert(resultado.datos.error);
+    avisar(resultado.datos.error, "error");
     if (resultado.estado === 409) {
       await irAPaso(2); 
     }
@@ -695,7 +730,7 @@ async function alternarFavorito() {
   if (huboError(resultado)) return;
   await cargarFavoritos();
   actualizarBotonFavorito();
-  alert(resultado.datos.favorita ? "¡Película guardada en tus favoritos!" : "La película se quitó de tus favoritos.");
+  avisar(resultado.datos.favorita ? "¡Película guardada en tus favoritos!" : "La película se quitó de tus favoritos.", "exito");
 }
 
 async function quitarFavorito(id) {
@@ -757,8 +792,8 @@ function elegirEstrellas(n) {
 async function publicarResena() {
   if (!usuarioActual) { avisarSinCuenta("calificar películas"); return; }
   const texto = $("#resena-texto").value.trim();
-  if (estrellasElegidas === 0) { alert("Elegí una puntuación de 1 a 5 estrellas."); return; }
-  if (texto === "") { alert("Escribí tu opinión antes de publicarla."); return; }
+  if (estrellasElegidas === 0) { avisar("Elegí una puntuación de 1 a 5 estrellas."); return; }
+  if (texto === "") { avisar("Escribí tu opinión antes de publicarla."); return; }
   const resultado = await enviar(CARPETA_API + "resenas.php", {
     pelicula_id: peliculaActual.id,
     estrellas: estrellasElegidas,
@@ -768,7 +803,7 @@ async function publicarResena() {
   cerrarResena();
   await verPelicula(peliculaActual.id);
   mostrarInicio();
-  alert("¡Tu reseña se publicó y quedó guardada en tu perfil!");
+  avisar("¡Tu reseña se publicó y quedó guardada en tu perfil!", "exito");
 }
 
 //  Perfil
@@ -814,11 +849,11 @@ function mostrarEditarPerfil() {
   $("#ep-vista").src = fotoDe(usuarioActual);
 }
 
-// La foto se achica a 256x256 para que ocupe poco lugar al guardarla
+// La foto se achica para que ocupe poco lugar al guardarla
 function elegirFoto(input) {
   const archivo = input.files[0];
   if (!archivo) return;
-  if (!archivo.type.startsWith("image/")) { alert("Elegí un archivo de imagen."); return; }
+  if (!archivo.type.startsWith("image/")) { avisar("Elegí un archivo de imagen."); return; }
   const lector = new FileReader();
   lector.onload = () => {
     const imagen = new Image();
@@ -847,7 +882,7 @@ async function guardarPerfil(event) {
   const nombre = $("#ep-nombre").value.trim();
 
   if (!/^[A-Za-z0-9_.]{3,24}$/.test(nombre)) {
-    alert("El nombre de usuario debe tener entre 3 y 24 caracteres: letras, números, _ o .");
+    avisar("El nombre de usuario debe tener entre 3 y 24 caracteres: letras, números, _ o .", "error");
     return;
   }
 
@@ -864,7 +899,7 @@ async function guardarPerfil(event) {
   $("#form-perfil").classList.add("oculto");
   actualizarCuenta();
   mostrarPerfil();
-  alert("Tu perfil se actualizó correctamente.");
+  avisar("Tu perfil se actualizó correctamente.", "exito");
 }
 
 // mis compras 
@@ -884,7 +919,7 @@ function limpiarAvisosCancelacion() {
 async function mostrarMisCompras() {
   mostrarAvisosCancelacion();
 
-  // Con cuenta: las compras de la cuenta. Sin cuenta: las que se hicieron desde este navegador.
+  // Con cuenta: las compras de la cuenta. Sin cuenta: las que se hicieron desde este navegador
   let ruta = "compras.php";
   if (!usuarioActual) {
     ruta += "?codigos=" + encodeURIComponent(leerCodigos().join(","));
@@ -918,7 +953,7 @@ async function mostrarMisCompras() {
 }
 
 async function cancelarCompra(codigo) {
-  if (!confirm("¿Querés cancelar esta entrada? Los asientos van a volver a estar disponibles.")) return;
+  if (!(await confirmar("¿Querés cancelar esta entrada? Los asientos van a volver a estar disponibles.", "Cancelar entrada", true))) return;
   const resultado = await enviar(CARPETA_API + "cancelar_compra.php", { codigo: codigo });
   if (huboError(resultado)) return;
   avisosCancelacion.push("Los asientos " + resultado.datos.asientos + " de «" + limpiar(resultado.datos.pelicula) + "» fueron cancelados y quedaron disponibles.");
@@ -964,7 +999,7 @@ function alternarSeguir(id) {
   mostrarComunidad();
 }
 
-// ===== Notificaciones =====
+//  notificaciones 
 let notificacionesCache = [];
 
 async function cargarNotificaciones() {
@@ -1067,10 +1102,10 @@ async function agregarPelicula(event) {
   $("#form-pelicula").classList.add("oculto");
   await cargarPeliculas();
   await mostrarAdmin();
-  alert("La película se agregó a la cartelera.");
+  avisar("La película se agregó a la cartelera.", "exito");
 }
 async function eliminarPelicula(id) {
-  if (!esAdmin() || !confirm("¿Querés sacar esta película de la cartelera?")) return;
+  if (!esAdmin() || !(await confirmar("¿Querés sacar esta película de la cartelera?", "Quitar película", true))) return;
   const resultado = await enviar(CARPETA_API + "admin_pelicula.php", { accion: "quitar", id: id });
   if (huboError(resultado)) return;
   await cargarPeliculas();

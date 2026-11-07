@@ -296,3 +296,17 @@ button.libre:hover { background: var(--violeta); color: #111; }
 .dia { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 20px; color: var(--texto); font-weight: 600; padding: 7px 16px; }
 .dia:hover { border-color: var(--violeta); }
 .dia.activo { background: var(--violeta); border-color: var(--violeta); color: #111; }
+
+/* carteles de aviso y confirmación */
+#cartel { backdrop-filter: blur(4px); z-index: 30; }
+.cartel { animation: aparecer .18s ease-out; box-shadow: 0 20px 60px rgba(0, 0, 0, .6); max-width: 400px; padding: 32px 28px 24px; text-align: center; }
+.cartel-icono { align-items: center; background: rgba(167, 139, 250, .15); border: 1px solid rgba(167, 139, 250, .4); border-radius: 50%; color: var(--violeta); display: flex; font-size: 26px; font-weight: 700; height: 56px; justify-content: center; margin: 0 auto 16px; width: 56px; }
+.cartel-icono.exito { background: rgba(16, 185, 129, .15); border-color: rgba(16, 185, 129, .4); color: #34d399; }
+.cartel-icono.error { background: rgba(239, 68, 68, .12); border-color: rgba(239, 68, 68, .4); color: #f87171; }
+.cartel h3 { font-size: 20px; margin-bottom: 8px; }
+.cartel p { color: var(--texto-suave); margin-bottom: 24px; }
+.cartel-botones { display: flex; gap: 10px; }
+.cartel-botones button { flex: 1; }
+.boton.boton-peligro { background: #ef4444; color: white; }
+.boton.boton-peligro:hover { background: #dc2626; }
+@keyframes aparecer { from { opacity: 0; transform: translateY(10px) scale(.95); } }
