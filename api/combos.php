@@ -1,5 +1,5 @@
 <?php
-// api/combos.php — combos del candy bar (SELECT)
+// combos del candy bar (SELECT)
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/conexion.php";
 

@@ -1,6 +1,6 @@
 <?php
-// api/asientos.php — asientos ocupados de una función
-// Uso: asientos.php?funcion_id=1   →   ["A1","C3"]
+//  asientos ocupados de una función
+
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/conexion.php";
 

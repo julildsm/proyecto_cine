@@ -1,9 +1,4 @@
 <?php
-// api/resenas.php
-//   GET  ?pelicula_id=1  → reseñas de una película
-//   GET  ?usuario_id=2   → reseñas de una persona
-//   GET  ?recientes=3    → las últimas reseñas de todos
-//   POST pelicula_id, estrellas, texto → guarda (o actualiza) MI reseña. Requiere sesión.
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/conexion.php";
 

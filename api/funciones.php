@@ -1,10 +1,8 @@
 <?php
-// api/funciones.php — funciones (día, hora, sala y precio) de los próximos días
-// Uso: funciones.php  (todas)   o   funciones.php?pelicula_id=1  (de una película)
+// funciones (día, hora, sala y precio) de los próximos días
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/conexion.php";
 
-// Cantidad de días que se muestran, contando hoy (para cambiarlo, modificá este número)
 $dias = 3;
 
 $peliculaId = filter_var($_GET["pelicula_id"] ?? "", FILTER_VALIDATE_INT);

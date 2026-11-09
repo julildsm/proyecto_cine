@@ -1,5 +1,4 @@
 <?php
-// api/proximos.php — próximos estrenos (SELECT)
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/conexion.php";
 

@@ -1,5 +1,5 @@
 <?php
-// api/admin_reembolso.php — aprobar o rechazar el reembolso de una compra cancelada. Solo administrador.
+// aprobar o rechazar el reembolso de una compra cancelada. Solo administrador.
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/requiere_admin.php";
 require_once __DIR__ . "/conexion.php";

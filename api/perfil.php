@@ -1,5 +1,5 @@
 <?php
-// api/perfil.php — edita el perfil de quien tiene la sesión iniciada (UPDATE)
+// edita el perfil de quien tiene la sesión iniciada (UPDATE)
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/requiere_login.php";
 require_once __DIR__ . "/conexion.php";

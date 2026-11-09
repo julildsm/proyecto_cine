@@ -1,5 +1,4 @@
 <?php
-// api/logout.php — cierra la sesión
 require_once __DIR__ . "/respuesta.php";
 
 session_start();

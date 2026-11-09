@@ -1,7 +1,5 @@
 <?php
-// api/compras.php — mis compras (SELECT)
-// Con sesión: las compras de la cuenta. Sin sesión: solo las de los códigos que se pasen
-// (?codigos=CM-AAAA,CM-BBBB), y únicamente si se hicieron sin cuenta.
+//  mis compras 
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/conexion.php";
 

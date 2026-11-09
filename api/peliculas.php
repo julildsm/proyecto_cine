@@ -1,5 +1,4 @@
 <?php
-// api/peliculas.php — películas en cartelera (SELECT)
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/conexion.php";
 

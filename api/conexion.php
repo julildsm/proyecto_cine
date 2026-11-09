@@ -1,10 +1,9 @@
 <?php
-// api/conexion.php — crea $conexion (PDO) para que otros archivos la reutilicen
 
 $servidor = "localhost";
 $base = "cinematch";
 $usuario = "root";
-$contrasena = ""; // Solo para XAMPP local
+$contrasena = ""; 
 
 $dsn = "mysql:host=$servidor;dbname=$base;charset=utf8mb4";
 $opciones = [

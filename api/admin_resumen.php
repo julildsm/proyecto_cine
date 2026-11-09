@@ -1,5 +1,5 @@
 <?php
-// api/admin_resumen.php — números del panel de administración. Solo administrador.
+// números del panel de administración. Solo administrador.
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/requiere_admin.php";
 require_once __DIR__ . "/conexion.php";

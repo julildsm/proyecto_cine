@@ -1,5 +1,5 @@
 <?php
-// api/login.php — verifica usuario (o email) y contraseña (SELECT) e inicia la sesión
+//  verifica usuario (o email) y contraseña e inicia la sesión
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/conexion.php";
 

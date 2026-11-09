@@ -1,7 +1,5 @@
 <?php
-// api/notificaciones.php — notificaciones de la persona con sesión
-//   GET  → lista (las más nuevas primero)
-//   POST accion=leer → las marca todas como leídas
+//  notificaciones de la persona con sesión
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/requiere_login.php";
 require_once __DIR__ . "/conexion.php";

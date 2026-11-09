@@ -1,7 +1,5 @@
 <?php
-// api/favoritos.php — películas favoritas de la persona con sesión
-//   GET  → lista de ids de películas favoritas
-//   POST pelicula_id → si ya era favorita la quita, si no la agrega
+// películas favoritas de la persona con sesión
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/requiere_login.php";
 require_once __DIR__ . "/conexion.php";

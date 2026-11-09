@@ -1,5 +1,4 @@
 <?php
-// api/sesion.php — ¿quién está conectado? Devuelve sus datos actuales de la base.
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/conexion.php";
 

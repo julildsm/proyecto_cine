@@ -1,7 +1,5 @@
 <?php
-// api/admin_pelicula.php — agregar o quitar una película de la cartelera. Solo administrador.
-//   POST accion=agregar + datos de la película
-//   POST accion=quitar  + id
+// agregar o quitar una película de la cartelera. Solo administrador.
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/requiere_admin.php";
 require_once __DIR__ . "/conexion.php";
@@ -51,7 +49,7 @@ try {
     if ($minutos < 30 || $minutos > 400) {
         responder(400, ["error" => "La duración tiene que ser como 2h 10m."]);
     }
-    // La imagen puede ser un archivo de la carpeta img (ej: ../img/matrix.jpg) o una dirección web con https://
+    // La imagen puede ser un archivo de la carpeta img (ej: ../img/matrix.jpg) o una dirección web 
     $esArchivoLocal = preg_match('#^\.\./img/[\w\-. ]+\.(jpe?g|png|webp|gif|avif)$#i', $imagen) === 1;
     if ((!$esArchivoLocal && strpos($imagen, "https://") !== 0) || strlen($imagen) > 500) {
         responder(400, ["error" => "La imagen tiene que ser un archivo de la carpeta img (ej: matrix.jpg) o una dirección web con https://"]);
@@ -68,7 +66,6 @@ try {
     ]);
     $id = (int) $conexion->lastInsertId();
 
-    // Funciones de los próximos 7 días en las 3 salas, como las películas de ejemplo
     $conexion->prepare(
         "INSERT IGNORE INTO funciones (pelicula_id, sala_numero, fecha, hora, precio)
          SELECT :id, s.numero, CURDATE() + INTERVAL d.n DAY, h.hora, s.precio

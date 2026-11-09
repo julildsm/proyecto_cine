@@ -1,14 +1,10 @@
 <?php
-// api/comprar.php — registra una compra (INSERT en compras, compra_asientos y compra_combos)
-// Puede comprar cualquier persona. Si tiene sesión, la compra queda a su nombre.
-// El total se calcula ACÁ con los precios de la base, no con lo que diga el navegador.
-require_once __DIR__ . "/respuesta.php";
+//registra una compra (INSERT en compras, compra_asientos y compra_combos)require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/conexion.php";
 
 session_start();
 exigirPost();
 
-// Corta con un error y deshace lo que se haya guardado a medias
 function fallar($conexion, $codigo, $mensaje) {
     if ($conexion->inTransaction()) {
         $conexion->rollBack();

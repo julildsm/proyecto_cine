@@ -1,6 +1,5 @@
 <?php
-// api/cancelar_compra.php — cancela una compra y libera sus asientos (UPDATE + DELETE)
-// Una compra con cuenta solo la cancela su dueño. Una compra sin cuenta, quien tenga su código.
+// cancela una compra y libera sus asientos 
 require_once __DIR__ . "/respuesta.php";
 require_once __DIR__ . "/conexion.php";
 
